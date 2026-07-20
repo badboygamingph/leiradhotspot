@@ -74,7 +74,9 @@ app.get('/api/supabase-config', (_req, res) => {
     anonKey:
       process.env.SUPABASE_ANON_KEY ||
       'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inh6a3hxYXRraHhlY2xtdXpmaG1jIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ0OTEyNDYsImV4cCI6MjEwMDA2NzI0Nn0.vhdZSSbgw-KGm3vaa27jEPXSDbc2al838rAGyqpm32k',
-    serviceRoleKey: process.env.SUPABASE_SERVICE_ROLE_KEY || '',
+    serviceRoleKey:
+      process.env.SUPABASE_SERVICE_ROLE_KEY ||
+      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inh6a3hxYXRraHhlY2xtdXpmaG1jIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc4NDQ5MTI0NiwiZXhwIjoyMTAwMDY3MjQ2fQ.LU5aAP4_zaDbZawNTOLqJURtCNqR54HhPTgB6Hs80z8',
   });
 });
 
