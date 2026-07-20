@@ -35,7 +35,7 @@ export default function App() {
     };
 
     fetchMaintenanceMode();
-    const interval = setInterval(fetchMaintenanceMode, 15000); // poll every 15s
+    const interval = setInterval(fetchMaintenanceMode, 3000); // poll every 3s for near real-time updates
     return () => clearInterval(interval);
   }, []);
   useEffect(() => { if (isDarkMode) { document.documentElement.classList.add("dark"); } else { document.documentElement.classList.remove("dark"); } }, [isDarkMode]);

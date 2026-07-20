@@ -190,37 +190,7 @@ export function KioskView({ vouchers = [], available, used, onGetVoucher, isDark
 
   return (
     <div className="relative overflow-hidden w-full h-full">
-      {isMaintenanceMode ? (
-        <div className={`absolute inset-0 flex flex-col items-center justify-center p-6 z-50 ${isDarkMode ? 'bg-slate-950' : 'bg-slate-50'}`}>
-          <motion.div 
-            initial={{ opacity: 0, scale: 0.95, y: 20 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            className={`w-full max-w-sm p-8 rounded-[2rem] border shadow-2xl text-center space-y-6 ${isDarkMode ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200'}`}
-          >
-            <motion.div 
-              animate={{ rotate: [-5, 5, -5] }}
-              transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-              className="w-24 h-24 bg-amber-500/10 rounded-[2rem] flex items-center justify-center mx-auto"
-            >
-              <AlertCircle className="w-12 h-12 text-amber-500" />
-            </motion.div>
-            <div className="space-y-3">
-              <h2 className={`text-2xl font-black font-display tracking-tight uppercase ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>System Maintenance</h2>
-              <p className={`text-xs font-medium leading-relaxed px-2 ${textMuted}`}>
-                The voucher dispensing system is currently undergoing scheduled maintenance. Please check back shortly!
-              </p>
-            </div>
-            <div className="pt-4 flex justify-center">
-              <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-amber-500/10 border border-amber-500/20">
-                <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span>
-                <span className="text-[9px] font-black uppercase tracking-widest text-amber-600 dark:text-amber-400">Temporarily Offline</span>
-              </div>
-            </div>
-          </motion.div>
-        </div>
-      ) : (
-        <>
-          {/* Pull to refresh spinner */}
+      {/* Pull to refresh spinner */}
       <div 
         className="absolute top-0 left-0 right-0 flex justify-center items-center h-16 z-20 pointer-events-none"
         style={{
@@ -736,9 +706,42 @@ export function KioskView({ vouchers = [], available, used, onGetVoucher, isDark
             onClose={() => setIsMyCodesOpen(false)}
           />
         )}
+
+        {isMaintenanceMode && (
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className={`fixed inset-0 flex flex-col items-center justify-center p-6 z-[100] backdrop-blur-md ${isDarkMode ? 'bg-slate-950/90' : 'bg-slate-900/60'}`}
+          >
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              className={`w-full max-w-sm p-8 rounded-[2rem] border shadow-2xl text-center space-y-6 ${isDarkMode ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200'}`}
+            >
+              <motion.div 
+                animate={{ rotate: [-5, 5, -5] }}
+                transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+                className="w-24 h-24 bg-amber-500/10 rounded-[2rem] flex items-center justify-center mx-auto"
+              >
+                <AlertCircle className="w-12 h-12 text-amber-500" />
+              </motion.div>
+              <div className="space-y-3">
+                <h2 className={`text-2xl font-black font-display tracking-tight uppercase ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>System Maintenance</h2>
+                <p className={`text-xs font-medium leading-relaxed px-2 ${textMuted}`}>
+                  The voucher dispensing system is currently undergoing scheduled maintenance. Please check back shortly!
+                </p>
+              </div>
+              <div className="pt-4 flex justify-center">
+                <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-amber-500/10 border border-amber-500/20">
+                  <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span>
+                  <span className="text-[9px] font-black uppercase tracking-widest text-amber-600 dark:text-amber-400">Temporarily Offline</span>
+                </div>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
       </AnimatePresence>
-      </>
-      )}
     </div>
   );
 }
