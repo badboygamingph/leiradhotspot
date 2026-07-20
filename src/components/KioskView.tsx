@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useRef, useEffect } from 'react';
-import { Ticket, Zap, Clock, CreditCard, ChevronRight, ChevronLeft, CheckCircle2, AlertCircle, Coins, Wallet, TrendingUp, Layers, History, X } from 'lucide-react';
+import { Ticket, Zap, Clock, CreditCard, ChevronRight, ChevronLeft, CheckCircle2, AlertCircle, Coins, Wallet, TrendingUp, Layers, History, X, ArrowDown } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Voucher } from '../types';
 
@@ -221,10 +221,19 @@ export function KioskView({ vouchers = [], available, used, onGetVoucher, isDark
           onTouchMove={handleTouchMove}
           onTouchEnd={handleTouchEnd}
         >
-          <h2 className="text-3xl font-bold tracking-tight font-display">Welcome</h2>
-          <div className="flex items-center gap-2">
-            <div className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse"></div>
-            <p className={`text-[10px] font-bold uppercase tracking-[0.2em] ${textMuted}`}>Select a voucher to begin</p>
+          <div className="flex items-start justify-between">
+            <div className="space-y-1">
+              <h2 className="text-3xl font-bold tracking-tight font-display">Welcome</h2>
+              <div className="flex items-center gap-2">
+                <div className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse"></div>
+                <p className={`text-[10px] font-bold uppercase tracking-[0.2em] ${textMuted}`}>Select a voucher to begin</p>
+              </div>
+            </div>
+            
+            <div className={`flex flex-col items-center justify-center opacity-50 ${textMuted} animate-bounce pr-2 pt-1`}>
+              <ArrowDown className="w-3.5 h-3.5 mb-1" />
+              <span className="text-[7px] font-bold uppercase tracking-[0.15em] text-center leading-tight">Pull to<br/>refresh</span>
+            </div>
           </div>
         </div>
 
@@ -285,7 +294,13 @@ export function KioskView({ vouchers = [], available, used, onGetVoucher, isDark
             style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
           >
             {/* Card 1: Today's Income */}
-            <div className={`snap-center shrink-0 w-[280px] p-6 rounded-3xl border transition-all ${cardClass} shadow-md border-l-4 border-l-blue-500 relative overflow-hidden group`}>
+            <motion.div 
+              initial={{ opacity: 0.3, scale: 0.9, x: 20 }}
+              whileInView={{ opacity: 1, scale: 1, x: 0 }}
+              viewport={{ amount: 0.4 }}
+              transition={{ duration: 0.4, ease: "easeOut" }}
+              className={`snap-center shrink-0 w-[280px] p-6 rounded-3xl border transition-colors ${cardClass} shadow-md border-l-4 border-l-blue-500 relative overflow-hidden group`}
+            >
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
                   <div className={`w-10 h-10 rounded-2xl flex items-center justify-center transition-colors ${isDarkMode ? 'bg-blue-500/15' : 'bg-blue-50'}`}>
@@ -309,10 +324,16 @@ export function KioskView({ vouchers = [], available, used, onGetVoucher, isDark
                   </p>
                 </div>
               </div>
-            </div>
+            </motion.div>
 
             {/* Card 2: Last Week's Income */}
-            <div className={`snap-center shrink-0 w-[280px] p-6 rounded-3xl border transition-all ${cardClass} shadow-md border-l-4 border-l-slate-500 relative overflow-hidden group`}>
+            <motion.div 
+              initial={{ opacity: 0.3, scale: 0.9, x: 20 }}
+              whileInView={{ opacity: 1, scale: 1, x: 0 }}
+              viewport={{ amount: 0.4 }}
+              transition={{ duration: 0.4, ease: "easeOut" }}
+              className={`snap-center shrink-0 w-[280px] p-6 rounded-3xl border transition-colors ${cardClass} shadow-md border-l-4 border-l-slate-500 relative overflow-hidden group`}
+            >
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
                   <div className={`w-10 h-10 rounded-2xl flex items-center justify-center transition-colors ${isDarkMode ? 'bg-slate-500/15' : 'bg-slate-50'}`}>
@@ -336,10 +357,16 @@ export function KioskView({ vouchers = [], available, used, onGetVoucher, isDark
                   </p>
                 </div>
               </div>
-            </div>
+            </motion.div>
 
             {/* Card 3: Monthly Income */}
-            <div className={`snap-center shrink-0 w-[280px] p-6 rounded-3xl border transition-all ${cardClass} shadow-md border-l-4 border-l-emerald-500 relative overflow-hidden group`}>
+            <motion.div 
+              initial={{ opacity: 0.3, scale: 0.9, x: 20 }}
+              whileInView={{ opacity: 1, scale: 1, x: 0 }}
+              viewport={{ amount: 0.4 }}
+              transition={{ duration: 0.4, ease: "easeOut" }}
+              className={`snap-center shrink-0 w-[280px] p-6 rounded-3xl border transition-colors ${cardClass} shadow-md border-l-4 border-l-emerald-500 relative overflow-hidden group`}
+            >
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
                   <div className={`w-10 h-10 rounded-2xl flex items-center justify-center transition-colors ${isDarkMode ? 'bg-emerald-500/15' : 'bg-emerald-50'}`}>
@@ -363,10 +390,16 @@ export function KioskView({ vouchers = [], available, used, onGetVoucher, isDark
                   </p>
                 </div>
               </div>
-            </div>
+            </motion.div>
 
             {/* Card 4: Available Vouchers */}
-            <div className={`snap-center shrink-0 w-[280px] p-6 rounded-3xl border transition-all ${cardClass} shadow-md border-l-4 border-l-amber-500 relative overflow-hidden group`}>
+            <motion.div 
+              initial={{ opacity: 0.3, scale: 0.9, x: 20 }}
+              whileInView={{ opacity: 1, scale: 1, x: 0 }}
+              viewport={{ amount: 0.4 }}
+              transition={{ duration: 0.4, ease: "easeOut" }}
+              className={`snap-center shrink-0 w-[280px] p-6 rounded-3xl border transition-colors ${cardClass} shadow-md border-l-4 border-l-amber-500 relative overflow-hidden group`}
+            >
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
                   <div className={`w-10 h-10 rounded-2xl flex items-center justify-center transition-colors ${isDarkMode ? 'bg-amber-500/15' : 'bg-amber-50'}`}>
@@ -390,7 +423,7 @@ export function KioskView({ vouchers = [], available, used, onGetVoucher, isDark
                   </p>
                 </div>
               </div>
-            </div>
+            </motion.div>
           </div>
         </motion.div>
 
@@ -673,61 +706,96 @@ export function KioskView({ vouchers = [], available, used, onGetVoucher, isDark
             className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-slate-950/80 backdrop-blur-sm"
           >
             <motion.div 
-              initial={{ scale: 0.95, y: 20 }}
-              animate={{ scale: 1, y: 0 }}
-              className={`rounded-3xl w-full max-w-lg max-h-[85vh] flex flex-col overflow-hidden border shadow-2xl ${isDarkMode ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200'}`}
+            <motion.div 
+              initial={{ scale: 0.95, opacity: 0, y: 20 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.95, opacity: 0, y: 20 }}
+              transition={{ type: "spring", bounce: 0.3, duration: 0.4 }}
+              className={`rounded-[2rem] w-full max-w-lg max-h-[85vh] flex flex-col overflow-hidden border shadow-2xl ${isDarkMode ? 'bg-slate-900 border-slate-800 shadow-blue-900/10' : 'bg-white border-slate-200 shadow-blue-500/10'}`}
             >
-              <div className={`p-6 border-b flex items-center justify-between ${isDarkMode ? 'border-slate-800' : 'border-slate-100'}`}>
-                <div className="flex items-center gap-3">
-                  <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${isDarkMode ? 'bg-blue-500/20' : 'bg-blue-50'}`}>
+              <div className={`p-6 border-b flex items-center justify-between relative overflow-hidden ${isDarkMode ? 'border-slate-800' : 'border-slate-100'}`}>
+                {/* Decorative subtle background gradient */}
+                <div className={`absolute top-0 right-0 w-32 h-32 rounded-full blur-3xl -mr-10 -mt-10 opacity-50 ${isDarkMode ? 'bg-blue-500/20' : 'bg-blue-400/10'}`}></div>
+                
+                <div className="flex items-center gap-4 relative z-10">
+                  <div className={`w-12 h-12 rounded-2xl flex items-center justify-center shadow-sm ${isDarkMode ? 'bg-slate-950 border border-slate-800' : 'bg-white border border-slate-100'}`}>
                     <History className={`w-5 h-5 ${isDarkMode ? 'text-blue-400' : 'text-blue-600'}`} />
                   </div>
                   <div>
-                    <h3 className="font-bold font-display tracking-tight text-lg">My Codes</h3>
-                    <p className={`text-[10px] font-bold uppercase tracking-widest ${textMuted}`}>Stored locally on this device</p>
+                    <h3 className="font-bold font-display tracking-tight text-xl">My Purchased Codes</h3>
+                    <div className="flex items-center gap-2 mt-0.5">
+                      <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></div>
+                      <p className={`text-[10px] font-black uppercase tracking-[0.2em] ${textMuted}`}>Stored securely locally</p>
+                    </div>
                   </div>
                 </div>
                 <button 
                   onClick={() => setIsMyCodesOpen(false)}
-                  className={`p-2 rounded-full transition-colors ${isDarkMode ? 'hover:bg-slate-800 text-slate-400' : 'hover:bg-slate-100 text-slate-500'}`}
+                  className={`p-2.5 rounded-xl transition-all active:scale-95 relative z-10 border ${
+                    isDarkMode ? 'hover:bg-slate-800 border-transparent hover:border-slate-700 text-slate-400' : 'hover:bg-slate-50 border-transparent hover:border-slate-200 text-slate-500'
+                  }`}
                 >
                   <X className="w-5 h-5" />
                 </button>
               </div>
               
-              <div className="flex-1 overflow-y-auto p-6 space-y-4">
+              <div className={`flex-1 overflow-y-auto p-4 sm:p-6 ${isDarkMode ? 'bg-slate-950/50' : 'bg-slate-50/50'}`}>
                 {purchasedCodes.length === 0 ? (
-                  <div className="text-center py-12 space-y-4">
-                    <div className={`w-16 h-16 rounded-full mx-auto flex items-center justify-center ${isDarkMode ? 'bg-slate-800' : 'bg-slate-100'}`}>
-                      <Ticket className={`w-8 h-8 ${isDarkMode ? 'text-slate-600' : 'text-slate-400'}`} />
-                    </div>
-                    <div>
-                      <p className={`font-semibold ${isDarkMode ? 'text-slate-300' : 'text-slate-700'}`}>No codes yet</p>
-                      <p className={`text-xs mt-1 ${textMuted}`}>Vouchers you generate will appear here.</p>
+                  <div className="text-center py-16 space-y-5">
+                    <motion.div 
+                      animate={{ rotate: [-5, 5, -5] }}
+                      transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+                      className={`w-20 h-20 rounded-3xl mx-auto flex items-center justify-center shadow-sm ${isDarkMode ? 'bg-slate-900 border border-slate-800' : 'bg-white border border-slate-100'}`}
+                    >
+                      <Ticket className={`w-8 h-8 ${isDarkMode ? 'text-slate-700' : 'text-slate-300'}`} />
+                    </motion.div>
+                    <div className="space-y-1.5">
+                      <p className={`text-lg font-bold tracking-tight font-display ${isDarkMode ? 'text-slate-200' : 'text-slate-800'}`}>No codes history yet</p>
+                      <p className={`text-[11px] font-medium uppercase tracking-wider ${textMuted}`}>Vouchers you generate will securely appear here.</p>
                     </div>
                   </div>
                 ) : (
-                  purchasedCodes.map((code, idx) => (
-                    <div key={idx} className={`p-5 rounded-[1.5rem] border flex flex-col sm:flex-row gap-4 sm:items-center justify-between ${
-                      isDarkMode ? 'bg-slate-950/50 border-slate-800' : 'bg-slate-50 border-slate-200'
-                    }`}>
-                      <div className="flex flex-col gap-1 w-full">
-                        <div className="flex items-center justify-between w-full">
-                          <span className={`text-[10px] font-bold uppercase tracking-widest px-2 py-0.5 rounded-sm ${
-                            isDarkMode ? 'bg-blue-500/20 text-blue-300' : 'bg-blue-100 text-blue-700'
+                  <div className="space-y-4">
+                    {purchasedCodes.map((code, idx) => (
+                      <motion.div 
+                        initial={{ opacity: 0, y: 15 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: idx * 0.05, ease: "easeOut" }}
+                        key={idx} 
+                        className={`relative overflow-hidden rounded-[1.5rem] border transition-all hover:shadow-lg ${
+                          isDarkMode ? 'bg-slate-900 border-slate-800 hover:border-blue-500/30' : 'bg-white border-slate-200 hover:border-blue-500/30 shadow-sm'
+                        }`}
+                      >
+                        {/* Decorative accent strip */}
+                        <div className="absolute left-0 top-0 bottom-0 w-1.5 bg-blue-500"></div>
+                        
+                        <div className="p-5 sm:p-6">
+                          <div className="flex items-center justify-between mb-4">
+                            <span className={`text-[10px] font-black uppercase tracking-[0.2em] px-3 py-1.5 rounded-md ${
+                              isDarkMode ? 'bg-blue-500/20 text-blue-400 border border-blue-500/20' : 'bg-blue-50 text-blue-700 border border-blue-100'
+                            }`}>
+                              {code.duration}
+                            </span>
+                            <span className={`text-[10px] font-bold uppercase tracking-widest ${textMuted}`}>
+                              {new Date(code.purchasedAt || '').toLocaleString(undefined, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                            </span>
+                          </div>
+                          
+                          <div className={`px-5 py-4 rounded-2xl flex flex-col sm:flex-row items-center justify-between border-2 border-dashed gap-3 ${
+                            isDarkMode ? 'border-slate-800 bg-slate-950/80' : 'border-slate-200 bg-slate-50'
                           }`}>
-                            {code.duration}
-                          </span>
-                          <span className={`text-xs font-medium tracking-wide ${textMuted}`}>
-                            {new Date(code.purchasedAt || '').toLocaleString(undefined, { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
-                          </span>
+                            <span className={`text-2xl sm:text-3xl font-black font-mono tracking-[0.15em] select-all ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>
+                              {code.code}
+                            </span>
+                            <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20">
+                              <span className="text-[9px] font-black uppercase tracking-[0.2em] text-emerald-600 dark:text-emerald-400">Ready</span>
+                              <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></div>
+                            </div>
+                          </div>
                         </div>
-                        <span className={`text-3xl font-black font-mono tracking-widest select-all mt-2 ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>
-                          {code.code}
-                        </span>
-                      </div>
-                    </div>
-                  ))
+                      </motion.div>
+                    ))}
+                  </div>
                 )}
               </div>
             </motion.div>
