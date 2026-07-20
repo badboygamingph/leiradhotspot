@@ -216,23 +216,22 @@ export function KioskView({ vouchers = [], available, used, onGetVoucher, isDark
         <div className="max-w-md mx-auto space-y-10">
         {/* Header - Pull to refresh trigger area */}
         <div 
-          className="space-y-1 py-2 -my-2"
+          className="py-2 -my-2 flex flex-col gap-4 relative"
           onTouchStart={handleTouchStart}
           onTouchMove={handleTouchMove}
           onTouchEnd={handleTouchEnd}
         >
-          <div className="flex items-start justify-between">
-            <div className="space-y-1">
-              <h2 className="text-3xl font-bold tracking-tight font-display">Welcome</h2>
-              <div className="flex items-center gap-2">
-                <div className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse"></div>
-                <p className={`text-[10px] font-bold uppercase tracking-[0.2em] ${textMuted}`}>Select a voucher to begin</p>
-              </div>
-            </div>
-            
-            <div className={`flex flex-col items-center justify-center opacity-50 ${textMuted} animate-bounce pr-2 pt-1`}>
-              <ArrowDown className="w-3.5 h-3.5 mb-1" />
-              <span className="text-[7px] font-bold uppercase tracking-[0.15em] text-center leading-tight">Pull to<br/>refresh</span>
+          {/* Centered pull-to-refresh hint */}
+          <div className={`flex flex-col items-center justify-center opacity-50 ${textMuted} animate-bounce w-full pt-2`}>
+            <ArrowDown className="w-4 h-4 mb-1" />
+            <span className="text-[8px] font-bold uppercase tracking-[0.2em] text-center">Pull to refresh</span>
+          </div>
+
+          <div className="space-y-1">
+            <h2 className="text-3xl font-bold tracking-tight font-display">Welcome</h2>
+            <div className="flex items-center gap-2">
+              <div className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse"></div>
+              <p className={`text-[10px] font-bold uppercase tracking-[0.2em] ${textMuted}`}>Select a voucher to begin</p>
             </div>
           </div>
         </div>
