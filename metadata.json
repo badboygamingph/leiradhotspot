@@ -1,0 +1,6 @@
+{
+  "name": "LEIRAD HOTSPOT VOUCHER",
+  "description": "An AI-powered dashboard to manage, track, and import hotspot vouchers from PDF and Excel files.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
