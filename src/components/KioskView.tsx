@@ -699,45 +699,34 @@ export function KioskView({ vouchers = [], available, used, onGetVoucher, isDark
         
         {isMyCodesOpen && (
           <motion.div 
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-slate-950/80 backdrop-blur-sm"
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: 20 }}
+            transition={{ type: "spring", bounce: 0, duration: 0.3 }}
+            className={`fixed inset-0 z-[100] flex flex-col ${isDarkMode ? 'bg-slate-950 text-slate-100' : 'bg-slate-50 text-slate-900'}`}
           >
-            <motion.div 
-              initial={{ scale: 0.95, opacity: 0, y: 20 }}
-              animate={{ scale: 1, opacity: 1, y: 0 }}
-              exit={{ scale: 0.95, opacity: 0, y: 20 }}
-              transition={{ type: "spring", bounce: 0.3, duration: 0.4 }}
-              className={`rounded-[2rem] w-full max-w-lg max-h-[85vh] flex flex-col overflow-hidden border shadow-2xl ${isDarkMode ? 'bg-slate-900 border-slate-800 shadow-blue-900/10' : 'bg-white border-slate-200 shadow-blue-500/10'}`}
-            >
-              <div className={`p-5 sm:p-6 border-b flex items-center justify-between relative overflow-hidden ${isDarkMode ? 'border-slate-800' : 'border-slate-100'}`}>
-                {/* Decorative subtle background gradient */}
-                <div className={`absolute top-0 right-0 w-32 h-32 rounded-full blur-3xl -mr-10 -mt-10 opacity-50 ${isDarkMode ? 'bg-blue-500/20' : 'bg-blue-400/10'}`}></div>
-                
-                <div className="flex items-center gap-3 sm:gap-4 relative z-10 w-full pr-12">
-                  <div className={`shrink-0 w-10 h-10 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl flex items-center justify-center shadow-sm ${isDarkMode ? 'bg-slate-950 border border-slate-800' : 'bg-white border border-slate-100'}`}>
-                    <History className={`w-4 h-4 sm:w-5 sm:h-5 ${isDarkMode ? 'text-blue-400' : 'text-blue-600'}`} />
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <h3 className="font-bold font-display tracking-tight text-lg sm:text-xl truncate">My Purchased Codes</h3>
-                    <div className="flex items-center gap-1.5 mt-0.5">
-                      <div className="shrink-0 w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></div>
-                      <p className={`text-[9px] sm:text-[10px] font-black uppercase tracking-[0.15em] sm:tracking-[0.2em] truncate ${textMuted}`}>Stored securely locally</p>
-                    </div>
+            <div className={`p-4 pt-6 sm:p-6 sm:pt-8 border-b flex items-center justify-between relative overflow-hidden shrink-0 shadow-sm ${isDarkMode ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200'}`}>
+              {/* Decorative subtle background gradient */}
+              <div className={`absolute top-0 right-0 w-32 h-32 rounded-full blur-3xl -mr-10 -mt-10 opacity-50 ${isDarkMode ? 'bg-blue-500/20' : 'bg-blue-400/10'}`}></div>
+              
+              <div className="flex items-center gap-3 sm:gap-4 relative z-10 w-full">
+                <button
+                  onClick={() => setIsMyCodesOpen(false)}
+                  className={`shrink-0 w-10 h-10 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl flex items-center justify-center shadow-sm transition-all active:scale-95 ${isDarkMode ? 'bg-slate-950 border border-slate-800 hover:bg-slate-800' : 'bg-slate-50 border border-slate-200 hover:bg-slate-100'}`}
+                >
+                  <ChevronLeft className={`w-5 h-5 ${isDarkMode ? 'text-slate-400' : 'text-slate-600'}`} />
+                </button>
+                <div className="min-w-0 flex-1">
+                  <h3 className="font-bold font-display tracking-tight text-xl sm:text-2xl truncate">My Purchased Codes</h3>
+                  <div className="flex items-center gap-1.5 mt-0.5">
+                    <div className="shrink-0 w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></div>
+                    <p className={`text-[9px] sm:text-[10px] font-black uppercase tracking-[0.15em] sm:tracking-[0.2em] truncate ${textMuted}`}>Stored securely locally</p>
                   </div>
                 </div>
-                <button 
-                  onClick={() => setIsMyCodesOpen(false)}
-                  className={`absolute right-4 top-1/2 -translate-y-1/2 p-2.5 rounded-xl transition-all active:scale-95 z-10 border ${
-                    isDarkMode ? 'hover:bg-slate-800 border-transparent hover:border-slate-700 text-slate-400' : 'hover:bg-slate-50 border-transparent hover:border-slate-200 text-slate-500'
-                  }`}
-                >
-                  <X className="w-5 h-5" />
-                </button>
               </div>
-              
-              <div className={`flex-1 overflow-y-auto p-4 sm:p-6 ${isDarkMode ? 'bg-slate-950/50' : 'bg-slate-50/50'}`}>
+            </div>
+            
+            <div className="flex-1 overflow-y-auto p-4 sm:p-6 pb-20">
                 {purchasedCodes.length === 0 ? (
                   <div className="text-center py-16 space-y-5">
                     <motion.div 
@@ -797,8 +786,7 @@ export function KioskView({ vouchers = [], available, used, onGetVoucher, isDark
                 )}
               </div>
             </motion.div>
-          </motion.div>
-        )}
+          )}
       </AnimatePresence>
       </div>
     </div>
