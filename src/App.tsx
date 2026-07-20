@@ -16,6 +16,9 @@ export default function App() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [activeTab, setActiveTab] = useState<'dashboard' | 'vouchers' | 'analytics' | 'logs' | 'settings'>('dashboard');
   const [isDarkMode, setIsDarkMode] = useState(false);
+  const [isMaintenanceMode, setIsMaintenanceMode] = useState(() => localStorage.getItem('maintenanceMode') === 'true');
+  
+  useEffect(() => { localStorage.setItem('maintenanceMode', String(isMaintenanceMode)); }, [isMaintenanceMode]);
   useEffect(() => { if (isDarkMode) { document.documentElement.classList.add("dark"); } else { document.documentElement.classList.remove("dark"); } }, [isDarkMode]);
   const [isClearAllOpen, setIsClearAllOpen] = useState(false);
 
@@ -93,6 +96,7 @@ export default function App() {
                 isDarkMode={isDarkMode}
                 onRefresh={refresh}
                 isRefreshing={loading}
+                isMaintenanceMode={isMaintenanceMode}
               />
             </div>
 
@@ -240,6 +244,30 @@ export default function App() {
                     <span>Target Table:</span>
                     <span className="text-slate-600 font-bold">hotspot_import_logs</span>
                   </div>
+                </div>
+              </div>
+
+              {/* Maintenance Mode Configuration */}
+              <div className="p-6 border border-slate-200 bg-slate-50/10 space-y-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h3 className="font-bold text-sm text-slate-800">System Maintenance Mode</h3>
+                    <p className="text-xs text-slate-500 mt-0.5">
+                      Enable this to temporarily suspend voucher generation on the kiosk. Users will see a maintenance screen.
+                    </p>
+                  </div>
+                  <button
+                    onClick={() => setIsMaintenanceMode(!isMaintenanceMode)}
+                    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none ${
+                      isMaintenanceMode ? 'bg-amber-500' : 'bg-slate-300'
+                    }`}
+                  >
+                    <span
+                      className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                        isMaintenanceMode ? 'translate-x-6' : 'translate-x-1'
+                      }`}
+                    />
+                  </button>
                 </div>
               </div>
 
