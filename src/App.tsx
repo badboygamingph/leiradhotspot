@@ -11,7 +11,7 @@ import { useToast } from './components/Toast';
 import { AnalyticsView } from './components/AnalyticsView';
 
 export default function App() {
-  const { vouchers, importLogs, addVouchers, updateVoucherStatus, getAndUseVoucher, deleteVoucher, clearAll, stats, loading } = useVouchers();
+  const { vouchers, importLogs, addVouchers, updateVoucherStatus, getAndUseVoucher, deleteVoucher, clearAll, stats, loading, refresh } = useVouchers();
   const { addToast } = useToast();
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [activeTab, setActiveTab] = useState<'dashboard' | 'vouchers' | 'analytics' | 'logs' | 'settings'>('dashboard');
@@ -91,6 +91,8 @@ export default function App() {
                 used={stats.used} 
                 onGetVoucher={getAndUseVoucher} 
                 isDarkMode={isDarkMode}
+                onRefresh={refresh}
+                isRefreshing={loading}
               />
             </div>
 

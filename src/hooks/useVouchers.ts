@@ -96,14 +96,15 @@ export function useVouchers() {
     }
   }, []);
 
-  useEffect(() => {
-    const init = async () => {
-      setLoading(true);
-      await Promise.all([fetchStats(), fetchVouchers(), fetchLogs()]);
-      setLoading(false);
-    };
-    init();
+  const refreshAll = useCallback(async () => {
+    setLoading(true);
+    await Promise.all([fetchStats(), fetchVouchers(), fetchLogs()]);
+    setLoading(false);
   }, [fetchStats, fetchVouchers, fetchLogs]);
+
+  useEffect(() => {
+    refreshAll();
+  }, [refreshAll]);
 
   // Helper function to dispatch logs to database and state
   const addLog = async (filename: string, count: number, actionType: string, details: string) => {
@@ -297,6 +298,6 @@ export function useVouchers() {
     clearAll,
     stats,
     loading,
-    refresh: fetchStats
+    refresh: refreshAll
   };
 }

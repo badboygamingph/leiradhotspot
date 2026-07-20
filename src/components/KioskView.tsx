@@ -9,6 +9,8 @@ interface Props {
   used: number;
   onGetVoucher: (duration: string) => Promise<Voucher | null>;
   isDarkMode: boolean;
+  onRefresh?: () => Promise<void>;
+  isRefreshing?: boolean;
 }
 
 const DURATIONS = [
@@ -19,7 +21,7 @@ const DURATIONS = [
   { id: '30D', label: '30 Days', price: 'Php 200.00' },
 ];
 
-export function KioskView({ vouchers = [], available, used, onGetVoucher, isDarkMode }: Props) {
+export function KioskView({ vouchers = [], available, used, onGetVoucher, isDarkMode, onRefresh, isRefreshing }: Props) {
   const [pendingDuration, setPendingDuration] = useState<typeof DURATIONS[0] | null>(null);
   const [dispensedVoucher, setDispensedVoucher] = useState<Voucher | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -35,6 +37,48 @@ export function KioskView({ vouchers = [], available, used, onGetVoucher, isDark
       return [];
     }
   });
+
+  const [pullY, setPullY] = useState(0);
+  const [startY, setStartY] = useState(0);
+  const [isPullRefreshing, setIsPullRefreshing] = useState(false);
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    if (window.scrollY === 0) {
+      setStartY(e.touches[0].clientY);
+    }
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    if (startY > 0 && window.scrollY === 0) {
+      const currentY = e.touches[0].clientY;
+      const diff = currentY - startY;
+      if (diff > 0) {
+        // Add resistance and max out at 100px
+        setPullY(Math.min(diff * 0.4, 100));
+        // Prevent default scrolling when pulling down
+        if (e.cancelable) {
+          e.preventDefault();
+        }
+      }
+    }
+  };
+
+  const handleTouchEnd = async () => {
+    if (pullY > 60 && onRefresh && !isPullRefreshing && !isRefreshing) {
+      setIsPullRefreshing(true);
+      setPullY(60);
+      try {
+        await onRefresh();
+      } finally {
+        setIsPullRefreshing(false);
+      }
+    }
+    setStartY(0);
+    setPullY(0);
+  };
+
+  // Sync external loading state
+  const isActuallyRefreshing = isRefreshing || isPullRefreshing;
 
   const getStockForDuration = (durationId: string) => {
     return vouchers.filter(v => v.duration?.toUpperCase() === durationId.toUpperCase() && v.status === 'available').length;
@@ -143,8 +187,36 @@ export function KioskView({ vouchers = [], available, used, onGetVoucher, isDark
   const textMuted = isDarkMode ? 'text-slate-400' : 'text-slate-500';
 
   return (
-    <div className={`-m-4 sm:-m-8 p-6 min-h-[calc(100vh-64px)] transition-colors duration-500 font-sans ${themeClass}`}>
-      <div className="max-w-md mx-auto space-y-10">
+    <div className="relative overflow-hidden w-full h-full">
+      {/* Pull to refresh spinner */}
+      <div 
+        className="absolute top-0 left-0 right-0 flex justify-center items-center h-16 z-20 pointer-events-none"
+        style={{
+          transform: `translateY(${pullY > 0 || isActuallyRefreshing ? Math.min(pullY, 60) - 30 : -100}px)`,
+          opacity: pullY > 0 || isActuallyRefreshing ? Math.min(pullY / 60, 1) : 0,
+          transition: startY === 0 ? 'transform 0.3s ease-out, opacity 0.3s ease-out' : 'none'
+        }}
+      >
+        <div className={`w-8 h-8 rounded-full border-[3px] shadow-md flex items-center justify-center ${
+          isDarkMode ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-100'
+        }`}>
+          <div className={`w-4 h-4 rounded-full border-2 border-t-transparent animate-spin ${
+            isDarkMode ? 'border-blue-400' : 'border-blue-500'
+          }`}></div>
+        </div>
+      </div>
+
+      <div 
+        className={`-m-4 sm:-m-8 p-6 min-h-[calc(100vh-64px)] transition-colors duration-500 font-sans ${themeClass}`}
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}
+        style={{
+          transform: `translateY(${isActuallyRefreshing ? 60 : pullY}px)`,
+          transition: startY === 0 ? 'transform 0.3s ease-out' : 'none'
+        }}
+      >
+        <div className="max-w-md mx-auto space-y-10">
         {/* Header */}
         <div className="space-y-1">
           <h2 className="text-3xl font-bold tracking-tight font-display">Welcome</h2>
@@ -639,6 +711,7 @@ export function KioskView({ vouchers = [], available, used, onGetVoucher, isDark
           </motion.div>
         )}
       </AnimatePresence>
+      </div>
     </div>
   );
 }

@@ -110,22 +110,22 @@ app.get('/api/vouchers', async (_req, res) => {
     let allData = [];
     let from = 0;
     const step = 1000;
-    
+
     while (true) {
       const { data, error } = await supabase
         .from('vouchers')
         .select('*')
         .order('created_at', { ascending: false })
         .range(from, from + step - 1);
-      
+
       if (error) throw error;
       if (!data || data.length === 0) break;
-      
+
       allData.push(...data);
       if (data.length < step) break;
       from += step;
     }
-    
+
     res.json({ vouchers: allData });
   } catch (err) {
     console.error('Vouchers error:', err);
@@ -166,7 +166,7 @@ app.post('/api/vouchers/save', async (req, res) => {
     const existingCodes = new Set();
     const chunkSize = 500;
     const codeList = formatted.map(v => v.code);
-    
+
     for (let i = 0; i < codeList.length; i += chunkSize) {
       const chunk = codeList.slice(i, i + chunkSize);
       const { data: existing, error: fetchErr } = await supabase
@@ -246,7 +246,7 @@ app.patch('/api/vouchers/:id/status', async (req, res) => {
       .from('vouchers')
       .update({ status: dbStatus })
       .eq('id', id);
-      
+
     if (error) {
       const { error: codeError } = await supabase
         .from('vouchers')
@@ -268,7 +268,7 @@ app.delete('/api/vouchers/:id', async (req, res) => {
     const { id } = req.params;
     const supabase = getSupabase();
     let { error } = await supabase.from('vouchers').delete().eq('id', id);
-    
+
     if (error) {
       const { error: codeError } = await supabase.from('vouchers').delete().eq('code', id);
       if (codeError) throw codeError;
@@ -303,7 +303,7 @@ app.get('/api/logs', async (_req, res) => {
     const supabase = getSupabase();
 
     // Auto-clean old logs (ignore errors if table doesn't exist)
-    await supabase.from('hotspot_import_logs').delete().lt('date', thirtyDaysAgo).catch(() => {});
+    await supabase.from('hotspot_import_logs').delete().lt('date', thirtyDaysAgo).catch(() => { });
 
     const { data, error } = await supabase
       .from('hotspot_import_logs')
@@ -389,7 +389,7 @@ app.post('/api/vouchers/extract-pdf', upload.single('file'), async (req, res) =>
     const data = await pdfParse(req.file.buffer);
     // Basic extraction: find alphanumeric tokens 3-16 chars
     const tokens = (data.text || '').match(/\b[a-zA-Z0-9_-]{4,16}\b/g) || [];
-    const uiWords = new Set(['code','pin','user','pass','wifi','hotspot','internet','status','time','date','price','duration','voucher','vouchers','page','admin','support']);
+    const uiWords = new Set(['code', 'pin', 'user', 'pass', 'wifi', 'hotspot', 'internet', 'status', 'time', 'date', 'price', 'duration', 'voucher', 'vouchers', 'page', 'admin', 'support']);
     const codes = [...new Set(tokens.filter(t => !uiWords.has(t.toLowerCase())))];
     res.json({ vouchers: codes.map(c => ({ code: c, duration: '', price: '' })) });
   } catch (err) {
