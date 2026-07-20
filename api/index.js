@@ -4,6 +4,7 @@
 const express = require('express');
 const { createClient } = require('@supabase/supabase-js');
 const multer = require('multer');
+const crypto = require('crypto');
 
 const app = express();
 app.use(express.json());
@@ -337,3 +338,10 @@ app.all('/api/*', (req, res) => {
 });
 
 module.exports = app;
+
+// Disable Vercel's default body parser to allow multer to work for file uploads
+module.exports.config = {
+  api: {
+    bodyParser: false,
+  },
+};
