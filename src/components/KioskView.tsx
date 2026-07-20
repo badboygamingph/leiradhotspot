@@ -696,16 +696,15 @@ export function KioskView({ vouchers = [], available, used, onGetVoucher, isDark
             </motion.div>
           </motion.div>
         )}
-        
         {isMyCodesOpen && (
           <motion.div 
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: 20 }}
             transition={{ type: "spring", bounce: 0, duration: 0.3 }}
-            className={`fixed inset-0 z-[100] flex flex-col ${isDarkMode ? 'bg-slate-950 text-slate-100' : 'bg-slate-50 text-slate-900'}`}
+            className={`fixed top-16 inset-x-0 bottom-0 z-30 flex flex-col ${isDarkMode ? 'bg-slate-950 text-slate-100' : 'bg-slate-50 text-slate-900'}`}
           >
-            <div className={`p-4 pt-6 sm:p-6 sm:pt-8 border-b flex items-center justify-between relative overflow-hidden shrink-0 shadow-sm ${isDarkMode ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200'}`}>
+            <div className={`p-4 sm:p-6 border-b flex items-center justify-between relative overflow-hidden shrink-0 shadow-sm ${isDarkMode ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200'}`}>
               {/* Decorative subtle background gradient */}
               <div className={`absolute top-0 right-0 w-32 h-32 rounded-full blur-3xl -mr-10 -mt-10 opacity-50 ${isDarkMode ? 'bg-blue-500/20' : 'bg-blue-400/10'}`}></div>
               
