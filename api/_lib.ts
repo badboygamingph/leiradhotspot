@@ -4,10 +4,8 @@ import fs from "fs";
 import path from "path";
 import { GoogleGenAI } from "@google/genai";
 import * as xlsx from "xlsx";
-import { createRequire } from "module";
-const require = createRequire(import.meta.url);
-const pdfParseModule = require("pdf-parse");
-const pdf = typeof pdfParseModule === "function" ? pdfParseModule : (pdfParseModule.default || pdfParseModule);
+import pdfParseModule from "pdf-parse";
+const pdf = typeof pdfParseModule === "function" ? pdfParseModule : (pdfParseModule as any).default || pdfParseModule;
 import { createClient } from "@supabase/supabase-js";
 
 const app = express();
