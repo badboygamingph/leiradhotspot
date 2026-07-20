@@ -12,14 +12,29 @@ app.use(express.json());
 const upload = multer({ storage: multer.memoryStorage() });
 
 // ── Supabase ──────────────────────────────────────────────────────────────────
-const SUPABASE_URL =
-  process.env.SUPABASE_URL || 'https://xzkxqatkhxeclmuzfhmc.supabase.co';
-const SUPABASE_KEY =
-  process.env.SUPABASE_SERVICE_ROLE_KEY ||
-  process.env.SUPABASE_ANON_KEY ||
-  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inh6a3hxYXRraHhlY2xtdXpmaG1jIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc4NDQ5MTI0NiwiZXhwIjoyMTAwMDY3MjQ2fQ.LU5aAP4_zaDbZawNTOLqJURtCNqR54HhPTgB6Hs80z8';
+let supabaseClient = null;
 
-const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+function getSupabase() {
+  if (!supabaseClient) {
+    let url = process.env.SUPABASE_URL || 'https://xzkxqatkhxeclmuzfhmc.supabase.co';
+    const key =
+      process.env.SUPABASE_SERVICE_ROLE_KEY ||
+      process.env.SUPABASE_ANON_KEY ||
+      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inh6a3hxYXRraHhlY2xtdXpmaG1jIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc4NDQ5MTI0NiwiZXhwIjoyMTAwMDY3MjQ2fQ.LU5aAP4_zaDbZawNTOLqJURtCNqR54HhPTgB6Hs80z8';
+
+    if (url && !url.startsWith('http')) {
+      url = `https://${url.trim()}.supabase.co`;
+    }
+
+    try {
+      supabaseClient = createClient(url, key);
+    } catch (e) {
+      console.error('Supabase init error:', e);
+      throw new Error(`Failed to initialize Supabase: ${e.message}`);
+    }
+  }
+  return supabaseClient;
+}
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 function normalizeDuration(d) {
@@ -55,17 +70,18 @@ app.get('/api/health', (_req, res) => {
 // Supabase config (for frontend settings page)
 app.get('/api/supabase-config', (_req, res) => {
   res.json({
-    url: SUPABASE_URL,
+    url: process.env.SUPABASE_URL || 'https://xzkxqatkhxeclmuzfhmc.supabase.co',
     anonKey:
       process.env.SUPABASE_ANON_KEY ||
       'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inh6a3hxYXRraHhlY2xtdXpmaG1jIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ0OTEyNDYsImV4cCI6MjEwMDA2NzI0Nn0.vhdZSSbgw-KGm3vaa27jEPXSDbc2al838rAGyqpm32k',
-    serviceRoleKey: SUPABASE_KEY,
+    serviceRoleKey: process.env.SUPABASE_SERVICE_ROLE_KEY || '',
   });
 });
 
 // Voucher stats
 app.get('/api/vouchers/stats', async (_req, res) => {
   try {
+    const supabase = getSupabase();
     const { count: availableCount, error: e1 } = await supabase
       .from('vouchers')
       .select('*', { count: 'exact', head: true })
@@ -88,6 +104,7 @@ app.get('/api/vouchers/stats', async (_req, res) => {
 // Get all vouchers
 app.get('/api/vouchers', async (_req, res) => {
   try {
+    const supabase = getSupabase();
     const { data, error } = await supabase
       .from('vouchers')
       .select('*')
@@ -129,6 +146,7 @@ app.post('/api/vouchers/save', async (req, res) => {
     }
 
     // Check for duplicates
+    const supabase = getSupabase();
     const { data: existing, error: fetchErr } = await supabase
       .from('vouchers')
       .select('code')
@@ -158,6 +176,7 @@ app.post('/api/vouchers/redeem', async (req, res) => {
     const { durationId } = req.body;
     const normalizedId = normalizeDuration(durationId);
 
+    const supabase = getSupabase();
     const { data: voucher, error: fetchErr } = await supabase
       .from('vouchers')
       .select('*')
@@ -191,6 +210,7 @@ app.patch('/api/vouchers/:id/status', async (req, res) => {
     const { status } = req.body;
     const dbStatus = status === 'used' ? 'redeemed' : status;
 
+    const supabase = getSupabase();
     const { error } = await supabase
       .from('vouchers')
       .update({ status: dbStatus })
@@ -208,6 +228,7 @@ app.patch('/api/vouchers/:id/status', async (req, res) => {
 app.delete('/api/vouchers/:id', async (req, res) => {
   try {
     const { id } = req.params;
+    const supabase = getSupabase();
     const { error } = await supabase.from('vouchers').delete().eq('id', id);
     if (error) throw error;
     res.json({ success: true });
@@ -220,6 +241,7 @@ app.delete('/api/vouchers/:id', async (req, res) => {
 // Clear all vouchers
 app.post('/api/vouchers/clear', async (_req, res) => {
   try {
+    const supabase = getSupabase();
     const { error } = await supabase
       .from('vouchers')
       .delete()
@@ -236,6 +258,7 @@ app.post('/api/vouchers/clear', async (_req, res) => {
 app.get('/api/logs', async (_req, res) => {
   try {
     const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
+    const supabase = getSupabase();
 
     // Auto-clean old logs (ignore errors if table doesn't exist)
     await supabase.from('hotspot_import_logs').delete().lt('date', thirtyDaysAgo).catch(() => {});
@@ -276,6 +299,7 @@ app.post('/api/logs', async (req, res) => {
       details: details || '',
     };
 
+    const supabase = getSupabase();
     const { error } = await supabase.from('hotspot_import_logs').insert([logItem]);
     if (error) throw error;
 
