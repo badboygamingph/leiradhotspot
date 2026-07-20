@@ -213,11 +213,18 @@ app.patch('/api/vouchers/:id/status', async (req, res) => {
     const dbStatus = status === 'used' ? 'redeemed' : status;
 
     const supabase = getSupabase();
-    const { error } = await supabase
+    let { error } = await supabase
       .from('vouchers')
       .update({ status: dbStatus })
       .eq('id', id);
-    if (error) throw error;
+      
+    if (error) {
+      const { error: codeError } = await supabase
+        .from('vouchers')
+        .update({ status: dbStatus })
+        .eq('code', id);
+      if (codeError) throw codeError;
+    }
 
     res.json({ success: true });
   } catch (err) {
@@ -231,8 +238,12 @@ app.delete('/api/vouchers/:id', async (req, res) => {
   try {
     const { id } = req.params;
     const supabase = getSupabase();
-    const { error } = await supabase.from('vouchers').delete().eq('id', id);
-    if (error) throw error;
+    let { error } = await supabase.from('vouchers').delete().eq('id', id);
+    
+    if (error) {
+      const { error: codeError } = await supabase.from('vouchers').delete().eq('code', id);
+      if (codeError) throw codeError;
+    }
     res.json({ success: true });
   } catch (err) {
     console.error('Delete error:', err);
