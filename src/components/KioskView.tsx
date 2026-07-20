@@ -732,11 +732,23 @@ export function KioskView({ vouchers = [], available, used, onGetVoucher, isDark
                   The voucher dispensing system is currently undergoing scheduled maintenance. Please check back shortly!
                 </p>
               </div>
-              <div className="pt-4 flex justify-center">
+              <div className="pt-4 flex flex-col items-center gap-4">
                 <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-amber-500/10 border border-amber-500/20">
                   <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span>
                   <span className="text-[9px] font-black uppercase tracking-widest text-amber-600 dark:text-amber-400">Temporarily Offline</span>
                 </div>
+                
+                <button
+                  onClick={() => window.location.reload()}
+                  className={`w-full max-w-[200px] py-3.5 rounded-2xl font-black uppercase tracking-widest text-[10px] transition-all flex items-center justify-center gap-2 active:scale-95 ${
+                    isDarkMode 
+                      ? 'bg-slate-800 text-slate-300 hover:bg-slate-700' 
+                      : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                  }`}
+                >
+                  <History className="w-3.5 h-3.5" />
+                  Refresh Page
+                </button>
               </div>
             </motion.div>
           </motion.div>
