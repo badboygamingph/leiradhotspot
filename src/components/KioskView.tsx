@@ -702,34 +702,34 @@ export function KioskView({ vouchers = [], available, used, onGetVoucher, isDark
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-slate-950/80 backdrop-blur-sm"
+            className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-6 bg-slate-950/80 backdrop-blur-sm"
           >
             <motion.div 
-              initial={{ scale: 0.95, opacity: 0, y: 20 }}
+              initial={{ scale: 0.95, opacity: 0, y: 50 }}
               animate={{ scale: 1, opacity: 1, y: 0 }}
-              exit={{ scale: 0.95, opacity: 0, y: 20 }}
+              exit={{ scale: 0.95, opacity: 0, y: 50 }}
               transition={{ type: "spring", bounce: 0.3, duration: 0.4 }}
-              className={`rounded-[2rem] w-full max-w-lg max-h-[85vh] flex flex-col overflow-hidden border shadow-2xl ${isDarkMode ? 'bg-slate-900 border-slate-800 shadow-blue-900/10' : 'bg-white border-slate-200 shadow-blue-500/10'}`}
+              className={`rounded-t-[2rem] sm:rounded-[2rem] w-full max-w-lg max-h-[90vh] sm:max-h-[85vh] flex flex-col overflow-hidden border-t sm:border shadow-2xl ${isDarkMode ? 'bg-slate-900 border-slate-800 shadow-blue-900/10' : 'bg-white border-slate-200 shadow-blue-500/10'}`}
             >
-              <div className={`p-6 border-b flex items-center justify-between relative overflow-hidden ${isDarkMode ? 'border-slate-800' : 'border-slate-100'}`}>
+              <div className={`p-5 sm:p-6 border-b flex items-center justify-between relative overflow-hidden ${isDarkMode ? 'border-slate-800' : 'border-slate-100'}`}>
                 {/* Decorative subtle background gradient */}
                 <div className={`absolute top-0 right-0 w-32 h-32 rounded-full blur-3xl -mr-10 -mt-10 opacity-50 ${isDarkMode ? 'bg-blue-500/20' : 'bg-blue-400/10'}`}></div>
                 
-                <div className="flex items-center gap-4 relative z-10">
-                  <div className={`w-12 h-12 rounded-2xl flex items-center justify-center shadow-sm ${isDarkMode ? 'bg-slate-950 border border-slate-800' : 'bg-white border border-slate-100'}`}>
-                    <History className={`w-5 h-5 ${isDarkMode ? 'text-blue-400' : 'text-blue-600'}`} />
+                <div className="flex items-center gap-3 sm:gap-4 relative z-10 w-full pr-12">
+                  <div className={`shrink-0 w-10 h-10 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl flex items-center justify-center shadow-sm ${isDarkMode ? 'bg-slate-950 border border-slate-800' : 'bg-white border border-slate-100'}`}>
+                    <History className={`w-4 h-4 sm:w-5 sm:h-5 ${isDarkMode ? 'text-blue-400' : 'text-blue-600'}`} />
                   </div>
-                  <div>
-                    <h3 className="font-bold font-display tracking-tight text-xl">My Purchased Codes</h3>
-                    <div className="flex items-center gap-2 mt-0.5">
-                      <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></div>
-                      <p className={`text-[10px] font-black uppercase tracking-[0.2em] ${textMuted}`}>Stored securely locally</p>
+                  <div className="min-w-0 flex-1">
+                    <h3 className="font-bold font-display tracking-tight text-lg sm:text-xl truncate">My Purchased Codes</h3>
+                    <div className="flex items-center gap-1.5 mt-0.5">
+                      <div className="shrink-0 w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></div>
+                      <p className={`text-[9px] sm:text-[10px] font-black uppercase tracking-[0.15em] sm:tracking-[0.2em] truncate ${textMuted}`}>Stored securely locally</p>
                     </div>
                   </div>
                 </div>
                 <button 
                   onClick={() => setIsMyCodesOpen(false)}
-                  className={`p-2.5 rounded-xl transition-all active:scale-95 relative z-10 border ${
+                  className={`absolute right-4 top-1/2 -translate-y-1/2 p-2.5 rounded-xl transition-all active:scale-95 z-10 border ${
                     isDarkMode ? 'hover:bg-slate-800 border-transparent hover:border-slate-700 text-slate-400' : 'hover:bg-slate-50 border-transparent hover:border-slate-200 text-slate-500'
                   }`}
                 >
