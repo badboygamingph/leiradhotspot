@@ -702,14 +702,14 @@ export function KioskView({ vouchers = [], available, used, onGetVoucher, isDark
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-6 bg-slate-950/80 backdrop-blur-sm"
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-slate-950/80 backdrop-blur-sm"
           >
             <motion.div 
-              initial={{ scale: 0.95, opacity: 0, y: 50 }}
+              initial={{ scale: 0.95, opacity: 0, y: 20 }}
               animate={{ scale: 1, opacity: 1, y: 0 }}
-              exit={{ scale: 0.95, opacity: 0, y: 50 }}
+              exit={{ scale: 0.95, opacity: 0, y: 20 }}
               transition={{ type: "spring", bounce: 0.3, duration: 0.4 }}
-              className={`rounded-t-[2rem] sm:rounded-[2rem] w-full max-w-lg max-h-[90vh] sm:max-h-[85vh] flex flex-col overflow-hidden border-t sm:border shadow-2xl ${isDarkMode ? 'bg-slate-900 border-slate-800 shadow-blue-900/10' : 'bg-white border-slate-200 shadow-blue-500/10'}`}
+              className={`rounded-[2rem] w-full max-w-lg max-h-[85vh] flex flex-col overflow-hidden border shadow-2xl ${isDarkMode ? 'bg-slate-900 border-slate-800 shadow-blue-900/10' : 'bg-white border-slate-200 shadow-blue-500/10'}`}
             >
               <div className={`p-5 sm:p-6 border-b flex items-center justify-between relative overflow-hidden ${isDarkMode ? 'border-slate-800' : 'border-slate-100'}`}>
                 {/* Decorative subtle background gradient */}
