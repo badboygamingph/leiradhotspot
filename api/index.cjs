@@ -103,16 +103,30 @@ app.get('/api/vouchers/stats', async (_req, res) => {
   }
 });
 
-// Get all vouchers
+// Get all vouchers (handles >1000 by looping)
 app.get('/api/vouchers', async (_req, res) => {
   try {
     const supabase = getSupabase();
-    const { data, error } = await supabase
-      .from('vouchers')
-      .select('*')
-      .order('created_at', { ascending: false });
-    if (error) throw error;
-    res.json({ vouchers: data });
+    let allData = [];
+    let from = 0;
+    const step = 1000;
+    
+    while (true) {
+      const { data, error } = await supabase
+        .from('vouchers')
+        .select('*')
+        .order('created_at', { ascending: false })
+        .range(from, from + step - 1);
+      
+      if (error) throw error;
+      if (!data || data.length === 0) break;
+      
+      allData.push(...data);
+      if (data.length < step) break;
+      from += step;
+    }
+    
+    res.json({ vouchers: allData });
   } catch (err) {
     console.error('Vouchers error:', err);
     res.status(500).json({ error: err.message || String(err) });
@@ -147,25 +161,40 @@ app.post('/api/vouchers/save', async (req, res) => {
       return res.json({ success: true, count: 0, message: 'No new valid vouchers.' });
     }
 
-    // Check for duplicates
+    // Check for duplicates in chunks to avoid URL length limits
     const supabase = getSupabase();
-    const { data: existing, error: fetchErr } = await supabase
-      .from('vouchers')
-      .select('code')
-      .in('code', formatted.map(v => v.code));
-    if (fetchErr) throw fetchErr;
+    const existingCodes = new Set();
+    const chunkSize = 500;
+    const codeList = formatted.map(v => v.code);
+    
+    for (let i = 0; i < codeList.length; i += chunkSize) {
+      const chunk = codeList.slice(i, i + chunkSize);
+      const { data: existing, error: fetchErr } = await supabase
+        .from('vouchers')
+        .select('code')
+        .in('code', chunk);
+      if (fetchErr) throw fetchErr;
+      if (existing) {
+        existing.forEach(e => existingCodes.add(e.code.toUpperCase()));
+      }
+    }
 
-    const existingCodes = new Set((existing || []).map(e => e.code.toUpperCase()));
     const toInsert = formatted.filter(v => !existingCodes.has(v.code.toUpperCase()));
 
     if (toInsert.length === 0) {
       return res.json({ success: true, count: 0, message: 'All vouchers already exist.' });
     }
 
-    const { data, error } = await supabase.from('vouchers').insert(toInsert).select();
-    if (error) throw error;
+    // Insert in chunks to avoid payload limits
+    let insertedCount = 0;
+    for (let i = 0; i < toInsert.length; i += chunkSize) {
+      const chunk = toInsert.slice(i, i + chunkSize);
+      const { data, error } = await supabase.from('vouchers').insert(chunk).select();
+      if (error) throw error;
+      if (data) insertedCount += data.length;
+    }
 
-    res.json({ success: true, count: data ? data.length : toInsert.length });
+    res.json({ success: true, count: insertedCount });
   } catch (err) {
     console.error('Save error:', err);
     res.status(500).json({ error: err.message || String(err) });
