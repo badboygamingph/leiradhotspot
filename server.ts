@@ -7,8 +7,6 @@ import { GoogleGenAI } from "@google/genai";
 import * as xlsx from "xlsx";
 
 
-import * as pdfParseModule from "pdf-parse";
-const pdf = typeof pdfParseModule === "function" ? pdfParseModule : ((pdfParseModule as any).default || pdfParseModule);
 import dotenv from "dotenv";
 import { createClient } from "@supabase/supabase-js";
 
@@ -266,8 +264,21 @@ app.post("/api/vouchers/extract-pdf", upload.single("file"), async (req: any, re
   try {
     if (!req.file) return res.status(400).json({ error: "No file uploaded" });
 
+    // Load pdf-parse dynamically to prevent startup crashes on serverless environments
+    let pdfParser;
+    try {
+      const pdfParseModule = await import("pdf-parse");
+      pdfParser = typeof pdfParseModule === "function" ? pdfParseModule : ((pdfParseModule as any).default || pdfParseModule);
+    } catch (importError: any) {
+      console.error("Failed to load PDF parser module:", importError);
+      return res.status(500).json({ 
+        error: "PDF parser module is not available on this server environment. Please convert your file to Excel (.xlsx) and import it instead.",
+        details: importError.message
+      });
+    }
+
     // Parse PDF directly to text
-    const data = await pdf(req.file.buffer);
+    const data = await pdfParser(req.file.buffer);
     const parsedVouchers = parseVoucherText(data.text || "");
 
     res.json({ vouchers: parsedVouchers });
