@@ -133,6 +133,55 @@ app.get('/api/vouchers', async (_req, res) => {
   }
 });
 
+// Get global settings
+app.get('/api/settings', async (req, res) => {
+  try {
+    const supabase = getSupabase();
+    const { data, error } = await supabase
+      .from('system_settings')
+      .select('*')
+      .eq('id', 1)
+      .single();
+
+    if (error) {
+      if (error.code === 'PGRST116') {
+        // Row doesn't exist, create it
+        await supabase.from('system_settings').insert([{ id: 1, is_maintenance_mode: false }]);
+        return res.json({ isMaintenanceMode: false });
+      }
+      throw error;
+    }
+    
+    res.json({ isMaintenanceMode: data.is_maintenance_mode || false });
+  } catch (err) {
+    console.error('Settings error:', err);
+    // Fallback gracefully
+    res.json({ isMaintenanceMode: false });
+  }
+});
+
+// Update maintenance mode
+app.put('/api/settings/maintenance', async (req, res) => {
+  try {
+    const { isMaintenanceMode } = req.body;
+    if (typeof isMaintenanceMode !== 'boolean') {
+      return res.status(400).json({ error: 'Invalid payload' });
+    }
+
+    const supabase = getSupabase();
+    const { error } = await supabase
+      .from('system_settings')
+      .update({ is_maintenance_mode: isMaintenanceMode })
+      .eq('id', 1);
+
+    if (error) throw error;
+    res.json({ success: true, isMaintenanceMode });
+  } catch (err) {
+    console.error('Update settings error:', err);
+    res.status(500).json({ error: err.message || String(err) });
+  }
+});
+
 // Save vouchers
 app.post('/api/vouchers/save', async (req, res) => {
   try {

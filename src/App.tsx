@@ -16,9 +16,28 @@ export default function App() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [activeTab, setActiveTab] = useState<'dashboard' | 'vouchers' | 'analytics' | 'logs' | 'settings'>('dashboard');
   const [isDarkMode, setIsDarkMode] = useState(false);
-  const [isMaintenanceMode, setIsMaintenanceMode] = useState(() => localStorage.getItem('maintenanceMode') === 'true');
+  const [isMaintenanceMode, setIsMaintenanceMode] = useState(false);
   
-  useEffect(() => { localStorage.setItem('maintenanceMode', String(isMaintenanceMode)); }, [isMaintenanceMode]);
+  // Fetch and poll maintenance mode from the global backend
+  useEffect(() => {
+    const fetchMaintenanceMode = async () => {
+      try {
+        const res = await fetch('/api/settings');
+        if (res.ok) {
+          const data = await res.json();
+          if (typeof data.isMaintenanceMode === 'boolean') {
+            setIsMaintenanceMode(data.isMaintenanceMode);
+          }
+        }
+      } catch (err) {
+        console.error('Failed to fetch maintenance mode', err);
+      }
+    };
+
+    fetchMaintenanceMode();
+    const interval = setInterval(fetchMaintenanceMode, 15000); // poll every 15s
+    return () => clearInterval(interval);
+  }, []);
   useEffect(() => { if (isDarkMode) { document.documentElement.classList.add("dark"); } else { document.documentElement.classList.remove("dark"); } }, [isDarkMode]);
   const [isClearAllOpen, setIsClearAllOpen] = useState(false);
 
@@ -257,7 +276,21 @@ export default function App() {
                     </p>
                   </div>
                   <button
-                    onClick={() => setIsMaintenanceMode(!isMaintenanceMode)}
+                    onClick={async () => {
+                      const newMode = !isMaintenanceMode;
+                      setIsMaintenanceMode(newMode);
+                      try {
+                        await fetch('/api/settings/maintenance', {
+                          method: 'PUT',
+                          headers: { 'Content-Type': 'application/json' },
+                          body: JSON.stringify({ isMaintenanceMode: newMode })
+                        });
+                      } catch (err) {
+                        console.error('Failed to update maintenance mode', err);
+                        // Revert on failure
+                        setIsMaintenanceMode(!newMode);
+                      }
+                    }}
                     className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none ${
                       isMaintenanceMode ? 'bg-amber-500' : 'bg-slate-300'
                     }`}
