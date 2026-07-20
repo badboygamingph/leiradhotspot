@@ -1,10 +1,10 @@
 // Self-contained Vercel serverless handler (plain JS/CommonJS compatible)
 // This avoids all ESM/CJS/tsconfig conflicts from the Vite-targeted tsconfig
 
-const express = require('express');
-const { createClient } = require('@supabase/supabase-js');
-const multer = require('multer');
-const crypto = require('crypto');
+import express from 'express';
+import { createClient } from '@supabase/supabase-js';
+import multer from 'multer';
+import crypto from 'crypto';
 
 const app = express();
 app.use(express.json());
@@ -314,7 +314,8 @@ app.post('/api/logs', async (req, res) => {
 app.post('/api/vouchers/extract-excel', upload.single('file'), async (req, res) => {
   try {
     if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
-    const xlsx = require('xlsx');
+    const xlsxModule = await import('xlsx');
+    const xlsx = xlsxModule.default || xlsxModule;
     const workbook = xlsx.read(req.file.buffer, { type: 'buffer' });
     const sheetName = workbook.SheetNames[0];
     const worksheet = workbook.Sheets[sheetName];
@@ -343,7 +344,8 @@ app.post('/api/vouchers/extract-excel', upload.single('file'), async (req, res) 
 app.post('/api/vouchers/extract-pdf', upload.single('file'), async (req, res) => {
   try {
     if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
-    const pdfParse = require('pdf-parse');
+    const pdfParseModule = await import('pdf-parse');
+    const pdfParse = typeof pdfParseModule === 'function' ? pdfParseModule : (pdfParseModule.default || pdfParseModule);
     const data = await pdfParse(req.file.buffer);
     // Basic extraction: find alphanumeric tokens 3-16 chars
     const tokens = (data.text || '').match(/\b[a-zA-Z0-9_-]{4,16}\b/g) || [];
@@ -361,10 +363,10 @@ app.all('/api/*', (req, res) => {
   res.status(404).json({ error: `API route not found: ${req.method} ${req.url}` });
 });
 
-module.exports = app;
+export default app;
 
 // Disable Vercel's default body parser to allow multer to work for file uploads
-module.exports.config = {
+export const config = {
   api: {
     bodyParser: false,
   },
