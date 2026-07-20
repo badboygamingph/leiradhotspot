@@ -64,17 +64,17 @@ export function KioskView({ vouchers = [], available, used, onGetVoucher, isDark
   };
 
   const handleTouchEnd = async () => {
-    if (pullY > 60 && onRefresh && !isPullRefreshing && !isRefreshing) {
+    if (pullY > 60 && !isPullRefreshing && !isRefreshing) {
       setIsPullRefreshing(true);
       setPullY(60);
-      try {
-        await onRefresh();
-      } finally {
-        setIsPullRefreshing(false);
-      }
+      // Let the spinner show at 60px before triggering a hard reload
+      setTimeout(() => {
+        window.location.reload();
+      }, 300);
+    } else {
+      setStartY(0);
+      setPullY(0);
     }
-    setStartY(0);
-    setPullY(0);
   };
 
   // Sync external loading state
@@ -208,17 +208,19 @@ export function KioskView({ vouchers = [], available, used, onGetVoucher, isDark
 
       <div 
         className={`-m-4 sm:-m-8 p-6 min-h-[calc(100vh-64px)] transition-colors duration-500 font-sans ${themeClass}`}
-        onTouchStart={handleTouchStart}
-        onTouchMove={handleTouchMove}
-        onTouchEnd={handleTouchEnd}
         style={{
           transform: `translateY(${isActuallyRefreshing ? 60 : pullY}px)`,
           transition: startY === 0 ? 'transform 0.3s ease-out' : 'none'
         }}
       >
         <div className="max-w-md mx-auto space-y-10">
-        {/* Header */}
-        <div className="space-y-1">
+        {/* Header - Pull to refresh trigger area */}
+        <div 
+          className="space-y-1 py-2 -my-2"
+          onTouchStart={handleTouchStart}
+          onTouchMove={handleTouchMove}
+          onTouchEnd={handleTouchEnd}
+        >
           <h2 className="text-3xl font-bold tracking-tight font-display">Welcome</h2>
           <div className="flex items-center gap-2">
             <div className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse"></div>
