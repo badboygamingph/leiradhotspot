@@ -527,6 +527,7 @@ export function KioskView({ vouchers = [], available, used, onGetVoucher, isDark
           </div>
         </motion.div>
       </div>
+      </div>
 
       {/* Overlays */}
       <AnimatePresence>
@@ -705,7 +706,6 @@ export function KioskView({ vouchers = [], available, used, onGetVoucher, isDark
           />
         )}
       </AnimatePresence>
-      </div>
     </div>
   );
 }
