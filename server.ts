@@ -2,7 +2,7 @@ import express from "express";
 import path from "path";
 import multer from "multer";
 import fs from "fs";
-import { createServer as createViteServer } from "vite";
+// Removed static vite import
 import { GoogleGenAI } from "@google/genai";
 import * as xlsx from "xlsx";
 import { createRequire } from "module";
@@ -867,6 +867,7 @@ app.all("/api/*", (req, res) => {
 // Vite Middleware for Dev/Prod
 async function setupVite() {
   if (process.env.NODE_ENV !== "production") {
+    const { createServer: createViteServer } = await import("vite");
     const vite = await createViteServer({
       server: { middlewareMode: true },
       appType: "spa",
@@ -881,8 +882,12 @@ async function setupVite() {
   }
 }
 
-setupVite().then(() => {
-  app.listen(PORT, "0.0.0.0", () => {
-    console.log(`Server running on http://localhost:${PORT}`);
+if (process.env.VERCEL !== "1") {
+  setupVite().then(() => {
+    app.listen(PORT, "0.0.0.0", () => {
+      console.log(`Server running on http://localhost:${PORT}`);
+    });
   });
-});
+}
+
+export default app;
