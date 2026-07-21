@@ -101,18 +101,20 @@ export function KioskView({ vouchers = [], available, used, onGetVoucher, isDark
     }
   };
 
-  const { todayIncome, lastWeekIncome, monthlyIncome } = useMemo(() => {
+  const { todayIncome, lastWeekIncome, monthlyIncome, totalIncome } = useMemo(() => {
     const now = new Date();
     const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
     const startOfWeek = startOfToday - 7 * 24 * 60 * 60 * 1000;
     const startOfMonth = startOfToday - 30 * 24 * 60 * 60 * 1000;
 
-    let today = 0, week = 0, month = 0;
+    let today = 0, week = 0, month = 0, total = 0;
 
     vouchers.forEach(v => {
       if (v.status === 'used') {
         const price = getPriceValue(v);
         const usedTime = v.usedAt ? new Date(v.usedAt).getTime() : new Date(v.createdAt).getTime();
+        
+        total += price;
 
         if (usedTime >= startOfToday) {
           today += price;
@@ -126,7 +128,7 @@ export function KioskView({ vouchers = [], available, used, onGetVoucher, isDark
       }
     });
 
-    return { todayIncome: today, lastWeekIncome: week, monthlyIncome: month };
+    return { todayIncome: today, lastWeekIncome: week, monthlyIncome: month, totalIncome: total };
   }, [vouchers]);
 
   const potentialValue = useMemo(() => {
@@ -140,7 +142,7 @@ export function KioskView({ vouchers = [], available, used, onGetVoucher, isDark
     const scrollLeft = container.scrollLeft;
     const cardWidth = 280 + 16; // card width + gap
     const index = Math.round(scrollLeft / cardWidth);
-    if (index !== activeCardIndex && index >= 0 && index < 4) {
+    if (index !== activeCardIndex && index >= 0 && index < 5) {
       setActiveCardIndex(index);
     }
   };
@@ -262,7 +264,7 @@ export function KioskView({ vouchers = [], available, used, onGetVoucher, isDark
               </button>
               
               <div className="flex items-center gap-1.5">
-                {[0, 1, 2, 3].map((i) => (
+                {[0, 1, 2, 3, 4].map((i) => (
                   <div 
                     key={i}
                     className={`w-1.5 h-1.5 rounded-full transition-all duration-300 ${
@@ -305,7 +307,9 @@ export function KioskView({ vouchers = [], available, used, onGetVoucher, isDark
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
                   <div className={`w-10 h-10 rounded-2xl flex items-center justify-center transition-colors ${isDarkMode ? 'bg-blue-500/15' : 'bg-blue-50'}`}>
-                    <Coins className={`w-5 h-5 ${isDarkMode ? 'text-blue-400' : 'text-blue-600'}`} />
+                    <motion.div animate={{ scale: [1, 1.1, 1] }} transition={{ repeat: Infinity, duration: 2 }}>
+                      <Zap className={`w-5 h-5 ${isDarkMode ? 'text-blue-400' : 'text-blue-600'}`} />
+                    </motion.div>
                   </div>
                   <span className={`text-[10px] font-bold font-mono tracking-wider px-2 py-0.5 rounded-md uppercase ${
                     isDarkMode ? 'bg-blue-500/20 text-blue-300' : 'bg-blue-100 text-blue-800'
@@ -338,7 +342,9 @@ export function KioskView({ vouchers = [], available, used, onGetVoucher, isDark
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
                   <div className={`w-10 h-10 rounded-2xl flex items-center justify-center transition-colors ${isDarkMode ? 'bg-slate-500/15' : 'bg-slate-50'}`}>
-                    <Coins className={`w-5 h-5 ${isDarkMode ? 'text-slate-400' : 'text-slate-600'}`} />
+                    <motion.div animate={{ rotate: [0, -10, 10, -10, 10, 0] }} transition={{ repeat: Infinity, duration: 3, repeatDelay: 1 }}>
+                      <History className={`w-5 h-5 ${isDarkMode ? 'text-slate-400' : 'text-slate-600'}`} />
+                    </motion.div>
                   </div>
                   <span className={`text-[10px] font-bold font-mono tracking-wider px-2 py-0.5 rounded-md uppercase ${
                     isDarkMode ? 'bg-slate-500/20 text-slate-300' : 'bg-slate-100 text-slate-800'
@@ -371,7 +377,9 @@ export function KioskView({ vouchers = [], available, used, onGetVoucher, isDark
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
                   <div className={`w-10 h-10 rounded-2xl flex items-center justify-center transition-colors ${isDarkMode ? 'bg-emerald-500/15' : 'bg-emerald-50'}`}>
-                    <Coins className={`w-5 h-5 ${isDarkMode ? 'text-emerald-400' : 'text-emerald-600'}`} />
+                    <motion.div animate={{ y: [0, -4, 0] }} transition={{ repeat: Infinity, duration: 2, ease: "easeInOut" }}>
+                      <TrendingUp className={`w-5 h-5 ${isDarkMode ? 'text-emerald-400' : 'text-emerald-600'}`} />
+                    </motion.div>
                   </div>
                   <span className={`text-[10px] font-bold font-mono tracking-wider px-2 py-0.5 rounded-md uppercase ${
                     isDarkMode ? 'bg-emerald-500/20 text-emerald-300' : 'bg-emerald-100 text-emerald-800'
@@ -393,7 +401,42 @@ export function KioskView({ vouchers = [], available, used, onGetVoucher, isDark
               </div>
             </motion.div>
 
-            {/* Card 4: Available Vouchers */}
+            {/* Card 4: Total Income */}
+            <motion.div 
+              initial={{ opacity: 0.3, scale: 0.9, x: 20 }}
+              whileInView={{ opacity: 1, scale: 1, x: 0 }}
+              viewport={{ amount: 0.4 }}
+              transition={{ duration: 0.4, ease: "easeOut" }}
+              className={`snap-center shrink-0 w-[280px] p-6 rounded-3xl border transition-colors ${cardClass} shadow-md border-l-4 border-l-purple-500 relative overflow-hidden group`}
+            >
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <div className={`w-10 h-10 rounded-2xl flex items-center justify-center transition-colors ${isDarkMode ? 'bg-purple-500/15' : 'bg-purple-50'}`}>
+                    <motion.div animate={{ scale: [1, 1.15, 1], rotate: [0, 5, -5, 0] }} transition={{ repeat: Infinity, duration: 2.5 }}>
+                      <Wallet className={`w-5 h-5 ${isDarkMode ? 'text-purple-400' : 'text-purple-600'}`} />
+                    </motion.div>
+                  </div>
+                  <span className={`text-[10px] font-bold font-mono tracking-wider px-2 py-0.5 rounded-md uppercase ${
+                    isDarkMode ? 'bg-purple-500/20 text-purple-300' : 'bg-purple-100 text-purple-800'
+                  }`}>
+                    All Time
+                  </span>
+                </div>
+                <div>
+                  <span className={`text-xs font-bold uppercase tracking-wider block mb-1 ${isDarkMode ? 'text-slate-400' : 'text-slate-600'}`}>
+                    Total Income
+                  </span>
+                  <span className={`text-2xl font-bold tracking-tight font-display block ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>
+                    Php {totalIncome.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                  </span>
+                  <p className={`text-xs mt-2 leading-relaxed ${isDarkMode ? 'text-slate-400' : 'text-slate-500'}`}>
+                    Revenue generated overall
+                  </p>
+                </div>
+              </div>
+            </motion.div>
+
+            {/* Card 5: Available Vouchers */}
             <motion.div 
               initial={{ opacity: 0.3, scale: 0.9, x: 20 }}
               whileInView={{ opacity: 1, scale: 1, x: 0 }}
@@ -404,7 +447,9 @@ export function KioskView({ vouchers = [], available, used, onGetVoucher, isDark
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
                   <div className={`w-10 h-10 rounded-2xl flex items-center justify-center transition-colors ${isDarkMode ? 'bg-amber-500/15' : 'bg-amber-50'}`}>
-                    <Ticket className={`w-5 h-5 ${isDarkMode ? 'text-amber-400' : 'text-amber-600'}`} />
+                    <motion.div animate={{ rotate: [-5, 5, -5] }} transition={{ repeat: Infinity, duration: 4, ease: "easeInOut" }}>
+                      <Ticket className={`w-5 h-5 ${isDarkMode ? 'text-amber-400' : 'text-amber-600'}`} />
+                    </motion.div>
                   </div>
                   <span className={`text-[10px] font-bold font-mono tracking-wider px-2 py-0.5 rounded-md uppercase ${
                     isDarkMode ? 'bg-amber-500/20 text-amber-300' : 'bg-amber-100 text-amber-800'
