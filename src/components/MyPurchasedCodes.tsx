@@ -11,6 +11,13 @@ interface MyPurchasedCodesProps {
 
 export function MyPurchasedCodes({ purchasedCodes, isDarkMode, onClose }: MyPurchasedCodesProps) {
   const textMuted = isDarkMode ? 'text-slate-400' : 'text-slate-500';
+  const [copiedCode, setCopiedCode] = React.useState<string | null>(null);
+
+  const handleCopyCode = (code: string) => {
+    navigator.clipboard.writeText(code);
+    setCopiedCode(code);
+    setTimeout(() => setCopiedCode(null), 2000);
+  };
 
   return (
     <motion.div 
@@ -89,10 +96,15 @@ export function MyPurchasedCodes({ purchasedCodes, isDarkMode, onClose }: MyPurc
                     <span className={`text-2xl sm:text-3xl font-black font-mono tracking-[0.15em] select-all ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>
                       {code.code}
                     </span>
-                    <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20">
-                      <span className="text-[9px] font-black uppercase tracking-[0.2em] text-emerald-600 dark:text-emerald-400">Ready</span>
-                      <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></div>
-                    </div>
+                    <button
+                      onClick={() => handleCopyCode(code.code)}
+                      className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 hover:bg-emerald-500/20 transition-colors active:scale-95"
+                    >
+                      <span className="text-[9px] font-black uppercase tracking-[0.2em] text-emerald-600 dark:text-emerald-400">
+                        {copiedCode === code.code ? 'Copied!' : 'Redeem Code'}
+                      </span>
+                      {copiedCode !== code.code && <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></div>}
+                    </button>
                   </div>
                 </div>
               </motion.div>
