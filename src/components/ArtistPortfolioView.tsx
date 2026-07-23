@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { ChevronLeft, ExternalLink, Music } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 
@@ -9,6 +9,18 @@ interface ArtistPortfolioViewProps {
 
 export function ArtistPortfolioView({ isDarkMode, onClose }: ArtistPortfolioViewProps) {
   const textMuted = isDarkMode ? 'text-slate-400' : 'text-slate-500';
+
+  useEffect(() => {
+    const calc = document.getElementById('floating-calculator');
+    if (calc) {
+      calc.style.display = 'none';
+    }
+    return () => {
+      if (calc) {
+        calc.style.display = '';
+      }
+    };
+  }, []);
 
   return (
     <motion.div

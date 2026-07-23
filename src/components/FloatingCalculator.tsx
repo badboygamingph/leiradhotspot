@@ -119,7 +119,7 @@ export function FloatingCalculator({ isDarkMode }: FloatingCalculatorProps) {
   }, [isOpen, display, equation, isNewNumber]);
 
   return (
-    <div className="fixed bottom-6 right-6 z-50 hidden lg:flex flex-col items-end">
+    <div id="floating-calculator" className="fixed bottom-6 right-6 z-50 flex flex-col items-end">
       <AnimatePresence>
         {isOpen && (
           <motion.div
