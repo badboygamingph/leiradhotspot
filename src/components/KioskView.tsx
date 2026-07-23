@@ -1,9 +1,10 @@
 import React, { useState, useMemo, useRef, useEffect } from 'react';
-import { Ticket, Zap, Clock, CreditCard, ChevronRight, ChevronLeft, CheckCircle2, AlertCircle, Coins, Wallet, TrendingUp, Layers, History, X, ArrowDown } from 'lucide-react';
+import { Ticket, Zap, Clock, CreditCard, ChevronRight, ChevronLeft, CheckCircle2, AlertCircle, Coins, Wallet, TrendingUp, Layers, History, X, ArrowDown, Megaphone } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Voucher } from '../types';
 import { Turnstile } from '@marsidev/react-turnstile';
 import { MyPurchasedCodes } from './MyPurchasedCodes';
+import { AnnouncementsView } from './AnnouncementsView';
 
 interface Props {
   vouchers: Voucher[];
@@ -33,6 +34,7 @@ export function KioskView({ vouchers = [], available, used, onGetVoucher, isDark
   const [activeCardIndex, setActiveCardIndex] = useState(0);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const [isMyCodesOpen, setIsMyCodesOpen] = useState(false);
+  const [isAnnouncementsOpen, setIsAnnouncementsOpen] = useState(false);
   const [purchasedCodes, setPurchasedCodes] = useState<Voucher[]>(() => {
     try {
       const stored = localStorage.getItem('myPurchasedCodes');
@@ -537,24 +539,37 @@ export function KioskView({ vouchers = [], available, used, onGetVoucher, isDark
           transition={{ duration: 0.5, delay: 0.2 }}
           className="pt-6"
         >
-          <button
-            onClick={() => setIsMyCodesOpen(true)}
-            className={`w-full py-4 rounded-2xl font-bold text-xs uppercase tracking-widest transition-all flex items-center justify-center gap-3 border ${
-              isDarkMode 
-                ? 'bg-slate-900 border-slate-800 text-slate-300 hover:bg-slate-800 hover:border-slate-700' 
-                : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'
-            }`}
-          >
-            <History className="w-4 h-4" />
-            My Purchased Codes
-            {purchasedCodes.length > 0 && (
-              <span className={`px-2 py-0.5 rounded-full text-[10px] font-black ${
-                isDarkMode ? 'bg-blue-500/20 text-blue-400' : 'bg-blue-100 text-blue-700'
-              }`}>
-                {purchasedCodes.length}
-              </span>
-            )}
-          </button>
+          <div className="grid grid-cols-2 gap-3">
+            <button
+              onClick={() => setIsMyCodesOpen(true)}
+              className={`py-4 rounded-2xl font-bold text-xs uppercase tracking-widest transition-all flex items-center justify-center gap-2 border ${
+                isDarkMode 
+                  ? 'bg-slate-900 border-slate-800 text-slate-300 hover:bg-slate-800 hover:border-slate-700' 
+                  : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'
+              }`}
+            >
+              <History className="w-4 h-4" />
+              My Codes
+              {purchasedCodes.length > 0 && (
+                <span className={`px-1.5 py-0.5 rounded-full text-[10px] font-black ${
+                  isDarkMode ? 'bg-blue-500/20 text-blue-400' : 'bg-blue-100 text-blue-700'
+                }`}>
+                  {purchasedCodes.length}
+                </span>
+              )}
+            </button>
+            <button
+              onClick={() => setIsAnnouncementsOpen(true)}
+              className={`py-4 rounded-2xl font-bold text-xs uppercase tracking-widest transition-all flex items-center justify-center gap-2 border relative ${
+                isDarkMode 
+                  ? 'bg-slate-900 border-slate-800 text-slate-300 hover:bg-slate-800 hover:border-slate-700' 
+                  : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'
+              }`}
+            >
+              <Megaphone className="w-4 h-4" />
+              Updates
+            </button>
+          </div>
         </motion.div>
 
         {/* Footer */}
@@ -778,6 +793,12 @@ export function KioskView({ vouchers = [], available, used, onGetVoucher, isDark
             purchasedCodes={purchasedCodes}
             isDarkMode={isDarkMode}
             onClose={() => setIsMyCodesOpen(false)}
+          />
+        )}
+        {isAnnouncementsOpen && (
+          <AnnouncementsView
+            isDarkMode={isDarkMode}
+            onClose={() => setIsAnnouncementsOpen(false)}
           />
         )}
 

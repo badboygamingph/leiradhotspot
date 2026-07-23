@@ -524,6 +524,99 @@ app.post('/api/vouchers/extract-pdf', upload.single('file'), async (req, res) =>
   }
 });
 
+// ── Announcements ─────────────────────────────────────────────────────────────
+
+// Get all active announcements (for kiosk display)
+app.get('/api/announcements', async (_req, res) => {
+  try {
+    const supabase = getSupabase();
+    const { data, error } = await supabase
+      .from('announcements')
+      .select('*')
+      .eq('is_active', true)
+      .order('created_at', { ascending: false });
+    if (error) throw error;
+    res.json({ announcements: data || [] });
+  } catch (err) {
+    console.error('Announcements error:', err);
+    res.status(500).json({ error: err.message || String(err) });
+  }
+});
+
+// Get ALL announcements for admin (including inactive)
+app.get('/api/announcements/all', async (_req, res) => {
+  try {
+    const supabase = getSupabase();
+    const { data, error } = await supabase
+      .from('announcements')
+      .select('*')
+      .order('created_at', { ascending: false });
+    if (error) throw error;
+    res.json({ announcements: data || [] });
+  } catch (err) {
+    console.error('Announcements error:', err);
+    res.status(500).json({ error: err.message || String(err) });
+  }
+});
+
+// Create announcement
+app.post('/api/announcements', async (req, res) => {
+  try {
+    const { title, content, type = 'info', is_active = true } = req.body;
+    if (!title || !content) {
+      return res.status(400).json({ error: 'Title and content are required' });
+    }
+    const supabase = getSupabase();
+    const { data, error } = await supabase
+      .from('announcements')
+      .insert([{ title, content, type, is_active }])
+      .select()
+      .single();
+    if (error) throw error;
+    res.json({ success: true, announcement: data });
+  } catch (err) {
+    console.error('Create announcement error:', err);
+    res.status(500).json({ error: err.message || String(err) });
+  }
+});
+
+// Update announcement
+app.put('/api/announcements/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { title, content, type, is_active } = req.body;
+    if (!title || !content) {
+      return res.status(400).json({ error: 'Title and content are required' });
+    }
+    const supabase = getSupabase();
+    const { data, error } = await supabase
+      .from('announcements')
+      .update({ title, content, type, is_active })
+      .eq('id', id)
+      .select()
+      .single();
+    if (error) throw error;
+    res.json({ success: true, announcement: data });
+  } catch (err) {
+    console.error('Update announcement error:', err);
+    res.status(500).json({ error: err.message || String(err) });
+  }
+});
+
+// Delete announcement
+app.delete('/api/announcements/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const supabase = getSupabase();
+    const { error } = await supabase.from('announcements').delete().eq('id', id);
+    if (error) throw error;
+    res.json({ success: true });
+  } catch (err) {
+    console.error('Delete announcement error:', err);
+    res.status(500).json({ error: err.message || String(err) });
+  }
+});
+
 // 404 catch-all for unknown API routes
 app.all('/api/*', (req, res) => {
   res.status(404).json({ error: `API route not found: ${req.method} ${req.url}` });
