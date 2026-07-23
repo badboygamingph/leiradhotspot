@@ -7,7 +7,14 @@ const multer = require('multer');
 const crypto = require('crypto');
 
 const app = express();
-app.use(express.json());
+
+// JSON body parser for all routes (multer routes override this with multipart handling)
+app.use((req, res, next) => {
+  if (req.headers['content-type'] && req.headers['content-type'].includes('multipart/form-data')) {
+    return next(); // skip json parse for file uploads - multer handles it
+  }
+  express.json()(req, res, next);
+});
 
 const upload = multer({ storage: multer.memoryStorage() });
 
@@ -368,8 +375,10 @@ app.get('/api/logs', async (_req, res) => {
     const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
     const supabase = getSupabase();
 
-    // Auto-clean old logs (ignore errors if table doesn't exist)
-    await supabase.from('hotspot_import_logs').delete().lt('date', thirtyDaysAgo).catch(() => { });
+    // Auto-clean old logs (ignore errors if table doesn't exist or fails)
+    try {
+      await supabase.from('hotspot_import_logs').delete().lt('date', thirtyDaysAgo);
+    } catch (_) { /* ignore cleanup errors */ }
 
     const { data, error } = await supabase
       .from('hotspot_import_logs')
@@ -472,9 +481,3 @@ app.all('/api/*', (req, res) => {
 
 module.exports = app;
 
-// Disable Vercel's default body parser to allow multer to work for file uploads
-module.exports.config = {
-  api: {
-    bodyParser: false,
-  },
-};
