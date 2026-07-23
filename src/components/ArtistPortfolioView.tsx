@@ -33,7 +33,7 @@ export function ArtistPortfolioView({ isDarkMode, onClose }: ArtistPortfolioView
               Artist Portfolio
             </h3>
             <p className={`text-[10px] font-black uppercase tracking-[0.2em] mt-0.5 ${textMuted}`}>
-              Dariel Pagsiat Ganzon
+              Leirad G.
             </p>
           </div>
           <a

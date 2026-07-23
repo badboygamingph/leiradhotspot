@@ -614,7 +614,7 @@ export function KioskView({ vouchers = [], available, used, onGetVoucher, isDark
               </div>
               <div className="text-left">
                 <p className={`text-[9px] font-black uppercase tracking-widest ${isDarkMode ? 'text-indigo-400' : 'text-indigo-600'}`}>Artist Portfolio</p>
-                <p className="text-sm font-bold tracking-tight">Leirad Music</p>
+                <p className="text-sm font-bold tracking-tight">Leirad G.</p>
               </div>
             </div>
             <div className={`w-8 h-8 rounded-full flex items-center justify-center transition-transform group-hover:translate-x-1 relative z-10 ${isDarkMode ? 'bg-slate-800' : 'bg-white shadow-sm'}`}>
