@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ChevronLeft, Megaphone, Info, AlertTriangle, CheckCircle2, Zap, RefreshCw } from 'lucide-react';
+import { ChevronLeft, Megaphone, Info, AlertTriangle, CheckCircle2, Zap, RefreshCw, Search, X, Clock, Calendar, CalendarDays, CalendarRange } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useSupabaseRealtime } from '../hooks/useSupabaseRealtime';
 
@@ -10,6 +10,28 @@ export interface Announcement {
   type: 'info' | 'warning' | 'success' | 'promo';
   is_active: boolean;
   created_at: string;
+}
+
+type TimeFilter = 'all' | 'today' | 'week' | 'month';
+
+const TIME_FILTERS: { id: TimeFilter; label: string; icon: React.ReactNode }[] = [
+  { id: 'all',   label: 'All',        icon: <CalendarRange className="w-3 h-3" /> },
+  { id: 'today', label: 'Today',      icon: <Clock className="w-3 h-3" /> },
+  { id: 'week',  label: 'Last Week',  icon: <Calendar className="w-3 h-3" /> },
+  { id: 'month', label: 'Last Month', icon: <CalendarDays className="w-3 h-3" /> },
+];
+
+function matchesTime(announcement: Announcement, filter: TimeFilter): boolean {
+  if (filter === 'all') return true;
+  const ts = announcement.created_at;
+  if (!ts) return false;
+  const createdTime = new Date(ts).getTime();
+  const now = Date.now();
+  const startOfToday = new Date(new Date().setHours(0, 0, 0, 0)).getTime();
+  if (filter === 'today')  return createdTime >= startOfToday;
+  if (filter === 'week')   return createdTime >= now - 7  * 24 * 60 * 60 * 1000;
+  if (filter === 'month')  return createdTime >= now - 30 * 24 * 60 * 60 * 1000;
+  return true;
 }
 
 interface AnnouncementsViewProps {
@@ -61,6 +83,36 @@ export function AnnouncementsView({ isDarkMode, onClose }: AnnouncementsViewProp
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const [searchTerm, setSearchTerm] = useState('');
+  const [timeFilter, setTimeFilter] = useState<TimeFilter>('all');
+
+  const { filteredAnnouncements, counts } = React.useMemo(() => {
+    let filtered = announcements;
+
+    if (searchTerm) {
+      const q = searchTerm.toLowerCase();
+      filtered = filtered.filter(a => 
+        a.title.toLowerCase().includes(q) || 
+        a.content.toLowerCase().includes(q)
+      );
+    }
+
+    const filterCounts: Record<TimeFilter, number> = {
+      all: 0, today: 0, week: 0, month: 0
+    };
+
+    filtered.forEach(a => {
+      if (matchesTime(a, 'all')) filterCounts.all++;
+      if (matchesTime(a, 'today')) filterCounts.today++;
+      if (matchesTime(a, 'week')) filterCounts.week++;
+      if (matchesTime(a, 'month')) filterCounts.month++;
+    });
+
+    filtered = filtered.filter(a => matchesTime(a, timeFilter));
+
+    return { filteredAnnouncements: filtered, counts: filterCounts };
+  }, [announcements, searchTerm, timeFilter]);
 
   const textMuted = isDarkMode ? 'text-slate-400' : 'text-slate-500';
   const cardBg = isDarkMode ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200';
