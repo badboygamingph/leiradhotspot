@@ -214,6 +214,13 @@ export default function App() {
 
   useEffect(() => {
     fetchMaintenanceMode();
+    
+    // Fallback polling every 3 seconds
+    const interval = setInterval(() => {
+      fetchMaintenanceMode();
+    }, 3000);
+    
+    return () => clearInterval(interval);
   }, []);
 
   useSupabaseRealtime({

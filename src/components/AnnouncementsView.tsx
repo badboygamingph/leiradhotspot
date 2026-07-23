@@ -83,6 +83,13 @@ export function AnnouncementsView({ isDarkMode, onClose }: AnnouncementsViewProp
 
   useEffect(() => {
     fetchAnnouncements();
+    
+    // Fallback polling every 10 seconds
+    const interval = setInterval(() => {
+      fetchAnnouncements();
+    }, 10000);
+    
+    return () => clearInterval(interval);
   }, []);
 
   // Subscribe to realtime announcement changes

@@ -10,7 +10,7 @@ export function useVouchers() {
   const [stats, setStats] = useState({ total: 0, available: 0, used: 0 });
   const [loading, setLoading] = useState(true);
 
-  const fetchStats = useCallback(async () => {
+  const fetchStats = useCallback(async (triggerVoucherFetch = false) => {
     try {
       const res = await fetch(`/api/vouchers/stats?t=${Date.now()}`, { cache: 'no-store' });
       if (!res.ok) {
@@ -31,10 +31,16 @@ export function useVouchers() {
         return;
       }
 
-      setStats({
-        available: data.available ?? 0,
-        used: data.used ?? 0,
-        total: (data.available ?? 0) + (data.used ?? 0)
+      setStats(prev => {
+        // Smart polling: if stats changed, fetch the full vouchers list
+        if (triggerVoucherFetch && (prev.available !== (data.available ?? 0) || prev.used !== (data.used ?? 0))) {
+          setTimeout(() => fetchVouchers(), 0);
+        }
+        return {
+          available: data.available ?? 0,
+          used: data.used ?? 0,
+          total: (data.available ?? 0) + (data.used ?? 0)
+        };
       });
     } catch (err) {
       console.error('Failed to fetch stats:', err);
@@ -105,7 +111,14 @@ export function useVouchers() {
 
   useEffect(() => {
     refreshAll();
-  }, [refreshAll]);
+    
+    // Fallback: Smart polling every 3 seconds to guarantee updates even if Supabase Realtime fails
+    const interval = setInterval(() => {
+      fetchStats(true);
+    }, 3000);
+    
+    return () => clearInterval(interval);
+  }, [refreshAll, fetchStats]);
 
   // Subscribe to realtime voucher changes
   useSupabaseRealtime({
