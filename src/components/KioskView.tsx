@@ -5,6 +5,7 @@ import { Voucher } from '../types';
 import { Turnstile } from '@marsidev/react-turnstile';
 import { MyPurchasedCodes } from './MyPurchasedCodes';
 import { AnnouncementsView } from './AnnouncementsView';
+import { ArtistPortfolioView } from './ArtistPortfolioView';
 import creatorImg from '../../assets/.aistudio/img/leiradg.png';
 
 interface Props {
@@ -36,6 +37,7 @@ export function KioskView({ vouchers = [], available, used, onGetVoucher, isDark
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const [isMyCodesOpen, setIsMyCodesOpen] = useState(false);
   const [isAnnouncementsOpen, setIsAnnouncementsOpen] = useState(false);
+  const [isArtistPortfolioOpen, setIsArtistPortfolioOpen] = useState(false);
   const [purchasedCodes, setPurchasedCodes] = useState<Voucher[]>(() => {
     try {
       const stored = localStorage.getItem('myPurchasedCodes');
@@ -595,6 +597,30 @@ export function KioskView({ vouchers = [], available, used, onGetVoucher, isDark
               )}
             </button>
           </div>
+
+          {/* Artist Portfolio Banner Button */}
+          <button
+            onClick={() => setIsArtistPortfolioOpen(true)}
+            className={`w-full mt-3 py-4 px-6 rounded-2xl transition-all flex items-center justify-between border shadow-sm group overflow-hidden relative ${
+              isDarkMode 
+                ? 'bg-gradient-to-r from-slate-900 to-indigo-950/30 border-indigo-500/20 text-slate-300 hover:border-indigo-500/40' 
+                : 'bg-gradient-to-r from-white to-indigo-50 border-indigo-100 text-slate-700 hover:border-indigo-200 hover:shadow-md'
+            }`}
+          >
+            <div className={`absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 bg-gradient-to-r ${isDarkMode ? 'from-indigo-500/10 to-transparent' : 'from-indigo-500/5 to-transparent'}`}></div>
+            <div className="flex items-center gap-4 relative z-10">
+              <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${isDarkMode ? 'bg-indigo-500/20' : 'bg-indigo-100'}`}>
+                <Music className={`w-5 h-5 ${isDarkMode ? 'text-indigo-400' : 'text-indigo-600'}`} />
+              </div>
+              <div className="text-left">
+                <p className={`text-[9px] font-black uppercase tracking-widest ${isDarkMode ? 'text-indigo-400' : 'text-indigo-600'}`}>Artist Portfolio</p>
+                <p className="text-sm font-bold tracking-tight">Leirad Music</p>
+              </div>
+            </div>
+            <div className={`w-8 h-8 rounded-full flex items-center justify-center transition-transform group-hover:translate-x-1 relative z-10 ${isDarkMode ? 'bg-slate-800' : 'bg-white shadow-sm'}`}>
+              <ChevronRight className="w-4 h-4" />
+            </div>
+          </button>
         </motion.div>
 
         {/* Footer */}
@@ -838,6 +864,12 @@ export function KioskView({ vouchers = [], available, used, onGetVoucher, isDark
           <AnnouncementsView
             isDarkMode={isDarkMode}
             onClose={() => setIsAnnouncementsOpen(false)}
+          />
+        )}
+        {isArtistPortfolioOpen && (
+          <ArtistPortfolioView
+            isDarkMode={isDarkMode}
+            onClose={() => setIsArtistPortfolioOpen(false)}
           />
         )}
 
