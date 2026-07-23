@@ -11,7 +11,7 @@ import { useToast } from './components/Toast';
 import { AnalyticsView } from './components/AnalyticsView';
 
 export default function App() {
-  const { vouchers, importLogs, addVouchers, updateVoucherStatus, getAndUseVoucher, deleteVoucher, clearAll, stats, loading, refresh } = useVouchers();
+  const { vouchers, importLogs, addVouchers, addSingleVoucher, editVoucher, updateVoucherStatus, getAndUseVoucher, deleteVoucher, clearAll, stats, loading, refresh } = useVouchers();
   const { addToast } = useToast();
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [activeTab, setActiveTab] = useState<'dashboard' | 'vouchers' | 'analytics' | 'logs' | 'settings'>('dashboard');
@@ -162,7 +162,9 @@ export default function App() {
                     <VoucherTable 
                       vouchers={vouchers} 
                       onUpdateStatus={updateVoucherStatus} 
-                      onDelete={deleteVoucher} 
+                      onDelete={deleteVoucher}
+                      onAdd={addSingleVoucher}
+                      onEdit={editVoucher}
                       defaultItemsPerPage={5}
                     />
                   </div>
@@ -183,7 +185,9 @@ export default function App() {
               <VoucherTable 
                 vouchers={vouchers} 
                 onUpdateStatus={updateVoucherStatus} 
-                onDelete={deleteVoucher} 
+                onDelete={deleteVoucher}
+                onAdd={addSingleVoucher}
+                onEdit={editVoucher}
               />
             </div>
           </div>

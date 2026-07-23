@@ -335,6 +335,56 @@ app.patch('/api/vouchers/:id/status', async (req, res) => {
   }
 });
 
+// Edit voucher (full update)
+app.put('/api/vouchers/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { code, duration, price, status } = req.body;
+    if (!code || !duration) {
+      return res.status(400).json({ error: 'Code and duration are required' });
+    }
+    const dbStatus = status === 'used' ? 'redeemed' : (status || 'available');
+    const supabase = getSupabase();
+    const { data, error } = await supabase
+      .from('vouchers')
+      .update({ code: code.trim(), duration: normalizeDuration(duration), price: price ? normalizePriceStr(price) : '', status: dbStatus })
+      .eq('id', id)
+      .select()
+      .single();
+    if (error) throw error;
+    res.json({ success: true, voucher: data });
+  } catch (err) {
+    console.error('Edit voucher error:', err);
+    res.status(500).json({ error: err.message || String(err) });
+  }
+});
+
+// Add single voucher
+app.post('/api/vouchers/add', async (req, res) => {
+  try {
+    const { code, duration, price } = req.body;
+    if (!code || !duration) {
+      return res.status(400).json({ error: 'Code and duration are required' });
+    }
+    const supabase = getSupabase();
+    // Check if code already exists
+    const { data: existing } = await supabase.from('vouchers').select('id').eq('code', code.trim()).maybeSingle();
+    if (existing) {
+      return res.status(409).json({ error: `Voucher code "${code}" already exists` });
+    }
+    const { data, error } = await supabase
+      .from('vouchers')
+      .insert([{ code: code.trim(), duration: normalizeDuration(duration), price: price ? normalizePriceStr(price) : '', status: 'available' }])
+      .select()
+      .single();
+    if (error) throw error;
+    res.json({ success: true, voucher: data });
+  } catch (err) {
+    console.error('Add voucher error:', err);
+    res.status(500).json({ error: err.message || String(err) });
+  }
+});
+
 // Delete a voucher
 app.delete('/api/vouchers/:id', async (req, res) => {
   try {

@@ -288,10 +288,50 @@ export function useVouchers() {
     }
   };
 
+  const addSingleVoucher = async (code: string, duration: string, price: string): Promise<boolean> => {
+    try {
+      const res = await fetch('/api/vouchers/add', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ code, duration, price })
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Failed to add voucher');
+      await addLog('Voucher Added', 1, 'manual_add', `Manually added voucher code: ${code} (${duration})`);
+      await Promise.all([fetchStats(), fetchVouchers()]);
+      addToast(`Voucher "${code}" added successfully`, 'success');
+      return true;
+    } catch (err: any) {
+      addToast(err.message || 'Failed to add voucher', 'error');
+      return false;
+    }
+  };
+
+  const editVoucher = async (id: string, code: string, duration: string, price: string, status: VoucherStatus): Promise<boolean> => {
+    try {
+      const res = await fetch(`/api/vouchers/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ code, duration, price, status })
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Failed to edit voucher');
+      await addLog('Voucher Edited', 0, 'edit', `Edited voucher ${code} (${duration})`);
+      await Promise.all([fetchStats(), fetchVouchers()]);
+      addToast(`Voucher "${code}" updated successfully`, 'success');
+      return true;
+    } catch (err: any) {
+      addToast(err.message || 'Failed to edit voucher', 'error');
+      return false;
+    }
+  };
+
   return {
     vouchers,
     importLogs,
     addVouchers,
+    addSingleVoucher,
+    editVoucher,
     updateVoucherStatus,
     getAndUseVoucher,
     deleteVoucher,
