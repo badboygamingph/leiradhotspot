@@ -8,6 +8,7 @@ import { ImportLogsTable } from './components/ImportLogsTable';
 import { KioskView } from './components/KioskView';
 import { ConfirmationModal } from './components/ConfirmationModal';
 import { useToast } from './components/Toast';
+import { useSupabaseRealtime } from './hooks/useSupabaseRealtime';
 import { AnalyticsView } from './components/AnalyticsView';
 import { Announcement } from './components/AnnouncementsView';
 
@@ -197,26 +198,30 @@ export default function App() {
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [isMaintenanceMode, setIsMaintenanceMode] = useState(false);
   
-  // Fetch and poll maintenance mode from the global backend
-  useEffect(() => {
-    const fetchMaintenanceMode = async () => {
-      try {
-        const res = await fetch('/api/settings');
-        if (res.ok) {
-          const data = await res.json();
-          if (typeof data.isMaintenanceMode === 'boolean') {
-            setIsMaintenanceMode(data.isMaintenanceMode);
-          }
+  const fetchMaintenanceMode = async () => {
+    try {
+      const res = await fetch('/api/settings');
+      if (res.ok) {
+        const data = await res.json();
+        if (typeof data.isMaintenanceMode === 'boolean') {
+          setIsMaintenanceMode(data.isMaintenanceMode);
         }
-      } catch (err) {
-        console.error('Failed to fetch maintenance mode', err);
       }
-    };
+    } catch (err) {
+      console.error('Failed to fetch maintenance mode', err);
+    }
+  };
 
+  useEffect(() => {
     fetchMaintenanceMode();
-    const interval = setInterval(fetchMaintenanceMode, 3000); // poll every 3s for near real-time updates
-    return () => clearInterval(interval);
   }, []);
+
+  useSupabaseRealtime({
+    table: 'system_settings',
+    onChange: () => {
+      fetchMaintenanceMode();
+    }
+  });
   useEffect(() => { if (isDarkMode) { document.documentElement.classList.add("dark"); } else { document.documentElement.classList.remove("dark"); } }, [isDarkMode]);
   const [isClearAllOpen, setIsClearAllOpen] = useState(false);
 
