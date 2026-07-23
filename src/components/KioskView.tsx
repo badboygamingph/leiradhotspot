@@ -608,7 +608,21 @@ export function KioskView({ vouchers = [], available, used, onGetVoucher, isDark
             <Ticket className="w-4 h-4" />
             <div className="h-px flex-1 max-w-[40px] bg-current"></div>
           </div>
-          <div className="space-y-1">
+          <div className="flex flex-col items-center justify-center mt-2 mb-4">
+            <div className={`flex items-center gap-3 px-4 py-2 rounded-full border shadow-sm transition-all hover:scale-105 ${
+              isDarkMode ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200'
+            }`}>
+              <img src="/leiradg.png" alt="Dariel Pagsiat Ganzon" className={`w-8 h-8 rounded-full border-2 object-cover ${
+                isDarkMode ? 'border-slate-800' : 'border-white shadow-sm'
+              }`} />
+              <div className="text-left flex flex-col justify-center">
+                <span className={`text-[8px] uppercase tracking-[0.2em] font-bold leading-none mb-1 ${textMuted}`}>Created By</span>
+                <span className={`text-[10px] font-black tracking-tight uppercase leading-none ${isDarkMode ? 'text-slate-200' : 'text-slate-700'}`}>Dariel Pagsiat Ganzon</span>
+              </div>
+            </div>
+          </div>
+          
+          <div className="space-y-1 mt-6">
             <p className={`text-[10px] font-bold uppercase tracking-[0.3em] ${textMuted}`}>
               © {new Date().getFullYear()} Leirad Hotspot
             </p>
