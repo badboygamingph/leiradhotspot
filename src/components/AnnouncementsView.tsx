@@ -13,6 +13,15 @@ export interface Announcement {
 }
 
 type TimeFilter = 'all' | 'today' | 'week' | 'month';
+type TypeFilter = 'all' | 'info' | 'warning' | 'success' | 'promo';
+
+const CATEGORY_FILTERS: { id: TypeFilter; label: string; icon: React.ReactNode }[] = [
+  { id: 'all',     label: 'All Types', icon: <Megaphone className="w-3 h-3" /> },
+  { id: 'info',    label: 'Info',      icon: <Info className="w-3 h-3" /> },
+  { id: 'warning', label: 'Notice',    icon: <AlertTriangle className="w-3 h-3" /> },
+  { id: 'success', label: 'Update',    icon: <CheckCircle2 className="w-3 h-3" /> },
+  { id: 'promo',   label: 'Promo',     icon: <Zap className="w-3 h-3" /> },
+];
 
 const TIME_FILTERS: { id: TimeFilter; label: string; icon: React.ReactNode }[] = [
   { id: 'all',   label: 'All',        icon: <CalendarRange className="w-3 h-3" /> },
@@ -86,8 +95,9 @@ export function AnnouncementsView({ isDarkMode, onClose }: AnnouncementsViewProp
 
   const [searchTerm, setSearchTerm] = useState('');
   const [timeFilter, setTimeFilter] = useState<TimeFilter>('all');
+  const [typeFilter, setTypeFilter] = useState<TypeFilter>('all');
 
-  const { filteredAnnouncements, counts } = React.useMemo(() => {
+  const { filteredAnnouncements, timeCounts, typeCounts } = React.useMemo(() => {
     let filtered = announcements;
 
     if (searchTerm) {
@@ -98,21 +108,38 @@ export function AnnouncementsView({ isDarkMode, onClose }: AnnouncementsViewProp
       );
     }
 
-    const filterCounts: Record<TimeFilter, number> = {
+    const tCounts: Record<TimeFilter, number> = {
       all: 0, today: 0, week: 0, month: 0
+    };
+    
+    const catCounts: Record<TypeFilter, number> = {
+      all: 0, info: 0, warning: 0, success: 0, promo: 0
     };
 
     filtered.forEach(a => {
-      if (matchesTime(a, 'all')) filterCounts.all++;
-      if (matchesTime(a, 'today')) filterCounts.today++;
-      if (matchesTime(a, 'week')) filterCounts.week++;
-      if (matchesTime(a, 'month')) filterCounts.month++;
+      // Time counts
+      if (matchesTime(a, 'all')) tCounts.all++;
+      if (matchesTime(a, 'today')) tCounts.today++;
+      if (matchesTime(a, 'week')) tCounts.week++;
+      if (matchesTime(a, 'month')) tCounts.month++;
+      
+      // Category counts (based on currently selected time filter, so it dynamically reflects what's visible)
+      if (matchesTime(a, timeFilter)) {
+        catCounts.all++;
+        catCounts[a.type]++;
+      }
     });
 
+    // Apply time filter
     filtered = filtered.filter(a => matchesTime(a, timeFilter));
+    
+    // Apply category filter
+    if (typeFilter !== 'all') {
+      filtered = filtered.filter(a => a.type === typeFilter);
+    }
 
-    return { filteredAnnouncements: filtered, counts: filterCounts };
-  }, [announcements, searchTerm, timeFilter]);
+    return { filteredAnnouncements: filtered, timeCounts: tCounts, typeCounts: catCounts };
+  }, [announcements, searchTerm, timeFilter, typeFilter]);
 
   const textMuted = isDarkMode ? 'text-slate-400' : 'text-slate-500';
   const cardBg = isDarkMode ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200';
@@ -221,11 +248,41 @@ export function AnnouncementsView({ isDarkMode, onClose }: AnnouncementsViewProp
           <div className="flex gap-1.5 pb-2 overflow-x-auto" style={{ scrollbarWidth: 'none' }}>
             {TIME_FILTERS.map(f => {
               const isActive = timeFilter === f.id;
-              const count = counts[f.id];
+              const count = timeCounts[f.id];
               return (
                 <button
                   key={f.id}
                   onClick={() => setTimeFilter(f.id)}
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[10px] font-bold whitespace-nowrap transition-all shrink-0 border ${
+                    isActive
+                      ? 'bg-blue-600 text-white border-blue-600 shadow-sm'
+                      : isDarkMode
+                        ? 'bg-slate-800 text-slate-400 border-slate-700 hover:border-slate-600 hover:text-slate-300'
+                        : 'bg-slate-100 text-slate-500 border-slate-200 hover:border-slate-300 hover:text-slate-700'
+                  }`}
+                >
+                  {f.icon}
+                  {f.label}
+                  <span className={`ml-0.5 text-[9px] px-1 py-0.5 rounded-full font-mono ${
+                    isActive
+                      ? 'bg-blue-500 text-blue-100'
+                      : isDarkMode ? 'bg-slate-700 text-slate-500' : 'bg-white text-slate-400'
+                  }`}>
+                    {count}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+
+          <div className="flex gap-1.5 pb-2 overflow-x-auto" style={{ scrollbarWidth: 'none' }}>
+            {CATEGORY_FILTERS.map(f => {
+              const isActive = typeFilter === f.id;
+              const count = typeCounts[f.id];
+              return (
+                <button
+                  key={f.id}
+                  onClick={() => setTypeFilter(f.id)}
                   className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[10px] font-bold whitespace-nowrap transition-all shrink-0 border ${
                     isActive
                       ? 'bg-blue-600 text-white border-blue-600 shadow-sm'
