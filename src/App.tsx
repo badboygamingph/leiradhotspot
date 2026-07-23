@@ -11,6 +11,7 @@ import { useToast } from './components/Toast';
 import { useSupabaseRealtime } from './hooks/useSupabaseRealtime';
 import { AnalyticsView } from './components/AnalyticsView';
 import { Announcement } from './components/AnnouncementsView';
+import { FloatingCalculator } from './components/FloatingCalculator';
 
 const ANNOUNCEMENT_TYPES = [
   { id: 'info',    label: 'Info',    color: 'text-blue-600 bg-blue-50 border-blue-200' },
@@ -745,6 +746,7 @@ export default function App() {
         confirmLabel="Destroy everything"
         isDestructive={true}
       />
+      <FloatingCalculator isDarkMode={isDarkMode} />
     </div>
   );
 }
