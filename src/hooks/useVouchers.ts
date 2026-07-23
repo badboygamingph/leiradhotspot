@@ -239,12 +239,12 @@ export function useVouchers() {
     }
   };
 
-  const getAndUseVoucher = async (duration: string): Promise<Voucher | null> => {
+  const getAndUseVoucher = async (duration: string, turnstileToken: string): Promise<Voucher | null> => {
     try {
       const res = await fetch('/api/vouchers/redeem', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ durationId: duration })
+        body: JSON.stringify({ durationId: duration, turnstileToken })
       });
       
       if (!res.ok) {
@@ -259,7 +259,7 @@ export function useVouchers() {
           console.error('Failed to parse error JSON');
         }
         console.error('Redemption error:', errorMessage);
-        return null;
+        throw new Error(errorMessage);
       }
 
       const data = await res.json();
@@ -282,10 +282,10 @@ export function useVouchers() {
         createdAt: new Date().toISOString(),
         source: 'Supabase'
       };
-    } catch (err) {
+    } catch (err: any) {
       console.error('Failed to redeem voucher:', err);
+      throw err;
     }
-    return null;
   };
 
   return {
