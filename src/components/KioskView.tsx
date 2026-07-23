@@ -5,6 +5,7 @@ import { Voucher } from '../types';
 import { Turnstile } from '@marsidev/react-turnstile';
 import { MyPurchasedCodes } from './MyPurchasedCodes';
 import { AnnouncementsView } from './AnnouncementsView';
+import creatorImg from '../../assets/.aistudio/img/leiradg.png';
 
 interface Props {
   vouchers: Voucher[];
@@ -612,7 +613,7 @@ export function KioskView({ vouchers = [], available, used, onGetVoucher, isDark
             <div className={`flex items-center gap-3 px-4 py-2 rounded-full border shadow-sm transition-all hover:scale-105 ${
               isDarkMode ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200'
             }`}>
-              <img src="/leiradg.png" alt="Dariel Pagsiat Ganzon" className={`w-8 h-8 rounded-full border-2 object-cover ${
+              <img src={creatorImg} alt="Dariel Pagsiat Ganzon" className={`w-8 h-8 rounded-full border-2 object-cover ${
                 isDarkMode ? 'border-slate-800' : 'border-white shadow-sm'
               }`} />
               <div className="text-left flex flex-col justify-center">
