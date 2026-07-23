@@ -596,8 +596,25 @@ app.get("/api/vouchers", async (req, res) => {
 
 app.post("/api/vouchers/redeem", async (req, res) => {
   try {
-    const { durationId } = req.body;
+    const { durationId, turnstileToken } = req.body;
     const normalizedId = normalizeDuration(durationId);
+
+    if (!turnstileToken) {
+      return res.status(400).json({ error: "Turnstile validation failed: No token provided" });
+    }
+
+    // Verify turnstile token
+    const TURNSTILE_SECRET_KEY = "0x4AAAAAAD71a2Fi0R2Pl-SdKTIrxk9JvsY";
+    const verificationResponse = await fetch("https://challenges.cloudflare.com/turnstile/v0/siteverify", {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: `secret=${TURNSTILE_SECRET_KEY}&response=${turnstileToken}`,
+    });
+
+    const verificationData = await verificationResponse.json();
+    if (!verificationData.success) {
+      return res.status(400).json({ error: "Turnstile validation failed: Invalid token" });
+    }
 
     try {
       const supabase = getSupabase();

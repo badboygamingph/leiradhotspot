@@ -253,8 +253,25 @@ app.post('/api/vouchers/save', async (req, res) => {
 // Redeem a voucher
 app.post('/api/vouchers/redeem', async (req, res) => {
   try {
-    const { durationId } = req.body;
+    const { durationId, turnstileToken } = req.body;
     const normalizedId = normalizeDuration(durationId);
+
+    if (!turnstileToken) {
+      return res.status(400).json({ error: "Turnstile validation failed: No token provided" });
+    }
+
+    // Verify turnstile token
+    const TURNSTILE_SECRET_KEY = "0x4AAAAAAD71a2Fi0R2Pl-SdKTIrxk9JvsY";
+    const verificationResponse = await fetch("https://challenges.cloudflare.com/turnstile/v0/siteverify", {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: `secret=${TURNSTILE_SECRET_KEY}&response=${turnstileToken}`,
+    });
+
+    const verificationData = await verificationResponse.json();
+    if (!verificationData.success) {
+      return res.status(400).json({ error: "Turnstile validation failed: Invalid token" });
+    }
 
     const supabase = getSupabase();
     const { data: voucher, error: fetchErr } = await supabase
@@ -434,7 +451,8 @@ app.post('/api/vouchers/extract-excel', upload.single('file'), async (req, res) 
 app.post('/api/vouchers/extract-pdf', upload.single('file'), async (req, res) => {
   try {
     if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
-    const pdfParse = require('pdf-parse');
+    const pdfParseModule = await import('pdf-parse');
+    const pdfParse = pdfParseModule.default || pdfParseModule;
     const data = await pdfParse(req.file.buffer);
     // Basic extraction: find alphanumeric tokens 3-16 chars
     const tokens = (data.text || '').match(/\b[a-zA-Z0-9_-]{4,16}\b/g) || [];

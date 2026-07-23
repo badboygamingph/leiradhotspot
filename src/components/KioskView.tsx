@@ -2,13 +2,14 @@ import React, { useState, useMemo, useRef, useEffect } from 'react';
 import { Ticket, Zap, Clock, CreditCard, ChevronRight, ChevronLeft, CheckCircle2, AlertCircle, Coins, Wallet, TrendingUp, Layers, History, X, ArrowDown } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Voucher } from '../types';
+import { Turnstile } from '@marsidev/react-turnstile';
 import { MyPurchasedCodes } from './MyPurchasedCodes';
 
 interface Props {
   vouchers: Voucher[];
   available: number;
   used: number;
-  onGetVoucher: (duration: string) => Promise<Voucher | null>;
+  onGetVoucher: (duration: string, turnstileToken: string) => Promise<Voucher | null>;
   isDarkMode: boolean;
   onRefresh?: () => Promise<void>;
   isRefreshing?: boolean;
@@ -28,6 +29,7 @@ export function KioskView({ vouchers = [], available, used, onGetVoucher, isDark
   const [dispensedVoucher, setDispensedVoucher] = useState<Voucher | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isRedeeming, setIsRedeeming] = useState(false);
+  const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
   const [activeCardIndex, setActiveCardIndex] = useState(0);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const [isMyCodesOpen, setIsMyCodesOpen] = useState(false);
@@ -159,11 +161,14 @@ export function KioskView({ vouchers = [], available, used, onGetVoucher, isDark
   };
 
   const handleConfirmDispense = async () => {
-    if (!pendingDuration) return;
+    if (!pendingDuration || !turnstileToken) {
+      if (!turnstileToken) setError("Please complete the security check.");
+      return;
+    }
     
     setIsRedeeming(true);
     try {
-      const voucher = await onGetVoucher(pendingDuration.id);
+      const voucher = await onGetVoucher(pendingDuration.id, turnstileToken);
       if (voucher) {
         const storedVoucher = { ...voucher, purchasedAt: new Date().toISOString() };
         const newPurchasedCodes = [storedVoucher, ...purchasedCodes];
@@ -178,11 +183,12 @@ export function KioskView({ vouchers = [], available, used, onGetVoucher, isDark
         setError(`No available vouchers for ${pendingDuration.id}`);
         setDispensedVoucher(null);
       }
-    } catch (err) {
-      setError("An unexpected error occurred. Please try again.");
+    } catch (err: any) {
+      setError(err.message || "An unexpected error occurred. Please try again.");
     } finally {
       setIsRedeeming(false);
       setPendingDuration(null);
+      setTurnstileToken(null);
     }
   };
 
@@ -610,10 +616,29 @@ export function KioskView({ vouchers = [], available, used, onGetVoucher, isDark
                   </div>
                 </div>
 
+                {error && (
+                  <div className="bg-red-500/10 text-red-500 p-4 rounded-2xl text-xs font-bold flex items-start gap-3">
+                    <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
+                    <p>{error}</p>
+                  </div>
+                )}
+
+                <div className="flex justify-center w-full min-h-[65px]">
+                  <Turnstile 
+                    siteKey="0x4AAAAAAD71a2NLe8UfBPMc" 
+                    onSuccess={(token) => {
+                      setTurnstileToken(token);
+                      setError(null);
+                    }}
+                    onError={() => setError("Security check failed. Please try again.")}
+                    options={{ theme: isDarkMode ? 'dark' : 'light' }}
+                  />
+                </div>
+
                 <div className="grid gap-3">
                   <button 
                     onClick={handleConfirmDispense}
-                    disabled={isRedeeming}
+                    disabled={isRedeeming || !turnstileToken}
                     className="w-full bg-blue-600 text-white py-4 rounded-2xl font-black uppercase tracking-[0.2em] text-[11px] hover:bg-blue-500 transition-all shadow-lg shadow-blue-600/20 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                   >
                     {isRedeeming ? (
@@ -626,7 +651,11 @@ export function KioskView({ vouchers = [], available, used, onGetVoucher, isDark
                     )}
                   </button>
                   <button 
-                    onClick={() => setPendingDuration(null)}
+                    onClick={() => {
+                      setPendingDuration(null);
+                      setTurnstileToken(null);
+                      setError(null);
+                    }}
                     className={`w-full py-4 rounded-2xl font-black uppercase tracking-[0.2em] text-[11px] transition-all border ${
                       isDarkMode ? 'bg-slate-800 border-slate-700 text-slate-400' : 'bg-white border-slate-200 text-slate-400'
                     }`}
