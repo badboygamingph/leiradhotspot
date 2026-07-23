@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { ChevronLeft, Megaphone, Info, AlertTriangle, CheckCircle2, Zap, RefreshCw } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
+import { useSupabaseRealtime } from '../hooks/useSupabaseRealtime';
 
 export interface Announcement {
   id: string;
@@ -83,6 +84,14 @@ export function AnnouncementsView({ isDarkMode, onClose }: AnnouncementsViewProp
   useEffect(() => {
     fetchAnnouncements();
   }, []);
+
+  // Subscribe to realtime announcement changes
+  useSupabaseRealtime({
+    table: 'announcements',
+    onChange: () => {
+      fetchAnnouncements(true);
+    }
+  });
 
   const formatDate = (dateStr: string) => {
     return new Date(dateStr).toLocaleString(undefined, {

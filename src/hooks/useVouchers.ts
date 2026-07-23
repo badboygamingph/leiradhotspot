@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Voucher, VoucherStatus, ExtractedVoucher } from '../types';
 import { useToast } from '../components/Toast';
+import { useSupabaseRealtime } from './useSupabaseRealtime';
 
 export function useVouchers() {
   const { addToast } = useToast();
@@ -105,6 +106,16 @@ export function useVouchers() {
   useEffect(() => {
     refreshAll();
   }, [refreshAll]);
+
+  // Subscribe to realtime voucher changes
+  useSupabaseRealtime({
+    table: 'vouchers',
+    onChange: () => {
+      // Whenever a voucher is added, updated, or deleted by another client,
+      // we refresh our data automatically.
+      refreshAll();
+    }
+  });
 
   // Helper function to dispatch logs to database and state
   const addLog = async (filename: string, count: number, actionType: string, details: string) => {
