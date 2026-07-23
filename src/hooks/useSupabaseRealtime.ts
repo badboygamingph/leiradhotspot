@@ -73,6 +73,8 @@ export function useSupabaseRealtime({
       .subscribe((s) => {
         if (s === 'SUBSCRIBED') {
           setStatus('connected');
+          // Fetch fresh data when connecting or reconnecting (e.g. waking from sleep)
+          onChangeRef.current();
         } else if (s === 'CHANNEL_ERROR' || s === 'TIMED_OUT' || s === 'CLOSED') {
           setStatus('error');
         }
