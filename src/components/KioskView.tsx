@@ -43,6 +43,23 @@ export function KioskView({ vouchers = [], available, used, onGetVoucher, isDark
       return [];
     }
   });
+  const [announcementsCount, setAnnouncementsCount] = useState(0);
+
+  useEffect(() => {
+    const fetchAnnouncementsCount = async () => {
+      try {
+        const res = await fetch(`/api/announcements?t=${Date.now()}`, { cache: 'no-store' });
+        if (res.ok) {
+          const data = await res.json();
+          setAnnouncementsCount(data.announcements?.length || 0);
+        }
+      } catch (e) {}
+    };
+
+    fetchAnnouncementsCount();
+    const interval = setInterval(fetchAnnouncementsCount, 10000);
+    return () => clearInterval(interval);
+  }, []);
 
   const [pullY, setPullY] = useState(0);
   const [startY, setStartY] = useState(0);
@@ -568,6 +585,13 @@ export function KioskView({ vouchers = [], available, used, onGetVoucher, isDark
             >
               <Megaphone className="w-4 h-4" />
               Updates
+              {announcementsCount > 0 && (
+                <span className={`px-1.5 py-0.5 rounded-full text-[10px] font-black ${
+                  isDarkMode ? 'bg-amber-500/20 text-amber-400' : 'bg-amber-100 text-amber-700'
+                }`}>
+                  {announcementsCount}
+                </span>
+              )}
             </button>
           </div>
         </motion.div>

@@ -181,7 +181,7 @@ export function AnnouncementsView({ isDarkMode, onClose }: AnnouncementsViewProp
             <div className="flex items-center gap-1.5 mt-0.5">
               <div className="shrink-0 w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse" />
               <p className={`text-[9px] font-black uppercase tracking-[0.2em] ${textMuted}`}>
-                {loading ? 'Loading...' : `${announcements.length} active announcement${announcements.length !== 1 ? 's' : ''}`}
+                {loading ? 'Loading...' : `${filteredAnnouncements.length} active announcement${filteredAnnouncements.length !== 1 ? 's' : ''}`}
               </p>
             </div>
           </div>
@@ -192,6 +192,61 @@ export function AnnouncementsView({ isDarkMode, onClose }: AnnouncementsViewProp
           >
             <RefreshCw className={`w-4 h-4 ${refreshing ? 'animate-spin' : ''}`} />
           </button>
+        </div>
+        {/* Filters */}
+        <div className="mt-4 space-y-3">
+          <div className="relative">
+            <Search className={`absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 ${isDarkMode ? 'text-slate-500' : 'text-slate-400'}`} />
+            <input
+              type="text"
+              placeholder="Search announcements..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className={`w-full pl-9 pr-10 py-2.5 rounded-xl text-sm transition-all focus:outline-none focus:ring-2 focus:ring-blue-500/50 ${
+                isDarkMode 
+                  ? 'bg-slate-950 border-slate-800 text-white placeholder-slate-500' 
+                  : 'bg-slate-50 border-slate-200 text-slate-900 placeholder-slate-400'
+              } border`}
+            />
+            {searchTerm && (
+              <button
+                onClick={() => setSearchTerm('')}
+                className={`absolute right-3 top-1/2 -translate-y-1/2 p-0.5 rounded-full hover:bg-slate-500/20 ${isDarkMode ? 'text-slate-400' : 'text-slate-500'}`}
+              >
+                <X className="w-3.5 h-3.5" />
+              </button>
+            )}
+          </div>
+
+          <div className="flex gap-1.5 pb-2 overflow-x-auto" style={{ scrollbarWidth: 'none' }}>
+            {TIME_FILTERS.map(f => {
+              const isActive = timeFilter === f.id;
+              const count = counts[f.id];
+              return (
+                <button
+                  key={f.id}
+                  onClick={() => setTimeFilter(f.id)}
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[10px] font-bold whitespace-nowrap transition-all shrink-0 border ${
+                    isActive
+                      ? 'bg-blue-600 text-white border-blue-600 shadow-sm'
+                      : isDarkMode
+                        ? 'bg-slate-800 text-slate-400 border-slate-700 hover:border-slate-600 hover:text-slate-300'
+                        : 'bg-slate-100 text-slate-500 border-slate-200 hover:border-slate-300 hover:text-slate-700'
+                  }`}
+                >
+                  {f.icon}
+                  {f.label}
+                  <span className={`ml-0.5 text-[9px] px-1 py-0.5 rounded-full font-mono ${
+                    isActive
+                      ? 'bg-blue-500 text-blue-100'
+                      : isDarkMode ? 'bg-slate-700 text-slate-500' : 'bg-white text-slate-400'
+                  }`}>
+                    {count}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
         </div>
       </div>
 
@@ -239,7 +294,7 @@ export function AnnouncementsView({ isDarkMode, onClose }: AnnouncementsViewProp
                 Try Again
               </button>
             </motion.div>
-          ) : announcements.length === 0 ? (
+          ) : filteredAnnouncements.length === 0 ? (
             <motion.div
               key="empty"
               initial={{ opacity: 0, y: 10 }}
@@ -270,10 +325,10 @@ export function AnnouncementsView({ isDarkMode, onClose }: AnnouncementsViewProp
               className="space-y-4"
             >
               <p className={`text-[10px] font-bold uppercase tracking-widest px-1 ${textMuted}`}>
-                {announcements.length} active post{announcements.length !== 1 ? 's' : ''}
+                {filteredAnnouncements.length} active post{filteredAnnouncements.length !== 1 ? 's' : ''}
               </p>
 
-              {announcements.map((item, idx) => {
+              {filteredAnnouncements.map((item, idx) => {
                 const cfg = TYPE_CONFIG[item.type] ?? TYPE_CONFIG.info;
                 return (
                   <motion.div
