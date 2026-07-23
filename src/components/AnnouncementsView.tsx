@@ -69,7 +69,7 @@ export function AnnouncementsView({ isDarkMode, onClose }: AnnouncementsViewProp
     if (showRefresh) setRefreshing(true);
     setError(null);
     try {
-      const res = await fetch('/api/announcements');
+      const res = await fetch(`/api/announcements?t=${Date.now()}`, { cache: 'no-store' });
       if (!res.ok) throw new Error(`Server error ${res.status}`);
       const data = await res.json();
       setAnnouncements(data.announcements || []);

@@ -12,7 +12,7 @@ export function useVouchers() {
 
   const fetchStats = useCallback(async () => {
     try {
-      const res = await fetch('/api/vouchers/stats');
+      const res = await fetch(`/api/vouchers/stats?t=${Date.now()}`, { cache: 'no-store' });
       if (!res.ok) {
         console.error('Stats fetch failed with status:', res.status);
         return;
@@ -43,7 +43,7 @@ export function useVouchers() {
 
   const fetchVouchers = useCallback(async () => {
     try {
-      const res = await fetch('/api/vouchers');
+      const res = await fetch(`/api/vouchers?t=${Date.now()}`, { cache: 'no-store' });
       if (!res.ok) {
         console.error('Vouchers fetch failed with status:', res.status);
         return;
@@ -76,7 +76,7 @@ export function useVouchers() {
 
   const fetchLogs = useCallback(async () => {
     try {
-      const res = await fetch('/api/logs');
+      const res = await fetch(`/api/logs?t=${Date.now()}`, { cache: 'no-store' });
       if (!res.ok) {
         console.error('Logs fetch failed with status:', res.status);
         return;

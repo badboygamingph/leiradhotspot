@@ -200,7 +200,7 @@ export default function App() {
   
   const fetchMaintenanceMode = async () => {
     try {
-      const res = await fetch('/api/settings');
+      const res = await fetch(`/api/settings?t=${Date.now()}`, { cache: 'no-store' });
       if (res.ok) {
         const data = await res.json();
         if (typeof data.isMaintenanceMode === 'boolean') {
@@ -262,7 +262,7 @@ export default function App() {
   const [showServiceRoleKey, setShowServiceRoleKey] = useState(false);
 
   useEffect(() => {
-    fetch('/api/supabase-config')
+    fetch(`/api/supabase-config?t=${Date.now()}`, { cache: 'no-store' })
       .then(res => res.json())
       .then(data => {
         setSupabaseConfig(data);
