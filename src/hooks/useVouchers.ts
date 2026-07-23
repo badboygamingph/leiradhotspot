@@ -238,12 +238,12 @@ export function useVouchers() {
     }
   };
 
-  const getAndUseVoucher = async (duration: string): Promise<Voucher | null> => {
+  const getAndUseVoucher = async (duration: string, turnstileToken: string): Promise<Voucher | null> => {
     try {
       const res = await fetch('/api/vouchers/redeem', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ durationId: duration })
+        body: JSON.stringify({ durationId: duration, turnstileToken })
       });
       
       if (!res.ok) {

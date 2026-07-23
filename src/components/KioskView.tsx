@@ -1,13 +1,14 @@
 import React, { useState, useMemo, useRef, useEffect } from 'react';
 import { Ticket, Zap, Clock, CreditCard, ChevronRight, ChevronLeft, CheckCircle2, AlertCircle, Coins, Wallet, TrendingUp, Layers, History, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
+import { Turnstile } from '@marsidev/react-turnstile';
 import { Voucher } from '../types';
 
 interface Props {
   vouchers: Voucher[];
   available: number;
   used: number;
-  onGetVoucher: (duration: string) => Promise<Voucher | null>;
+  onGetVoucher: (duration: string, turnstileToken: string) => Promise<Voucher | null>;
   isDarkMode: boolean;
 }
 
@@ -22,6 +23,7 @@ const DURATIONS = [
 export function KioskView({ vouchers = [], available, used, onGetVoucher, isDarkMode }: Props) {
   const [pendingDuration, setPendingDuration] = useState<typeof DURATIONS[0] | null>(null);
   const [dispensedVoucher, setDispensedVoucher] = useState<Voucher | null>(null);
+  const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isRedeeming, setIsRedeeming] = useState(false);
   const [activeCardIndex, setActiveCardIndex] = useState(0);
@@ -111,11 +113,11 @@ export function KioskView({ vouchers = [], available, used, onGetVoucher, isDark
   };
 
   const handleConfirmDispense = async () => {
-    if (!pendingDuration) return;
+    if (!pendingDuration || !turnstileToken) return;
     
     setIsRedeeming(true);
     try {
-      const voucher = await onGetVoucher(pendingDuration.id);
+      const voucher = await onGetVoucher(pendingDuration.id, turnstileToken);
       if (voucher) {
         const storedVoucher = { ...voucher, purchasedAt: new Date().toISOString() };
         const newPurchasedCodes = [storedVoucher, ...purchasedCodes];
@@ -135,6 +137,7 @@ export function KioskView({ vouchers = [], available, used, onGetVoucher, isDark
     } finally {
       setIsRedeeming(false);
       setPendingDuration(null);
+      setTurnstileToken(null);
     }
   };
 
@@ -436,9 +439,16 @@ export function KioskView({ vouchers = [], available, used, onGetVoucher, isDark
                 </div>
 
                 <div className="grid gap-3">
+                  <div className="flex justify-center mb-2">
+                    <Turnstile 
+                      siteKey="0x4AAAAAAD71a2NLe8UfBPMc" 
+                      onSuccess={(token) => setTurnstileToken(token)}
+                      options={{ theme: isDarkMode ? 'dark' : 'light' }}
+                    />
+                  </div>
                   <button 
                     onClick={handleConfirmDispense}
-                    disabled={isRedeeming}
+                    disabled={isRedeeming || !turnstileToken}
                     className="w-full bg-blue-600 text-white py-4 rounded-2xl font-black uppercase tracking-[0.2em] text-[11px] hover:bg-blue-500 transition-all shadow-lg shadow-blue-600/20 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                   >
                     {isRedeeming ? (
@@ -451,7 +461,7 @@ export function KioskView({ vouchers = [], available, used, onGetVoucher, isDark
                     )}
                   </button>
                   <button 
-                    onClick={() => setPendingDuration(null)}
+                    onClick={() => { setPendingDuration(null); setTurnstileToken(null); }}
                     className={`w-full py-4 rounded-2xl font-black uppercase tracking-[0.2em] text-[11px] transition-all border ${
                       isDarkMode ? 'bg-slate-800 border-slate-700 text-slate-400' : 'bg-white border-slate-200 text-slate-400'
                     }`}

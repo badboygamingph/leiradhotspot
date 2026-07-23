@@ -585,7 +585,27 @@ app.get("/api/vouchers", async (req, res) => {
 
 app.post("/api/vouchers/redeem", async (req, res) => {
   try {
-    const { durationId } = req.body;
+    const { durationId, turnstileToken } = req.body;
+
+    // Turnstile Validation
+    if (!turnstileToken) {
+      return res.status(400).json({ error: "Turnstile token is required" });
+    }
+
+    const formData = new URLSearchParams();
+    formData.append('secret', '0x4AAAAAAD71a2Fi0R2Pl-SdKTIrxk9JvsY');
+    formData.append('response', turnstileToken);
+
+    const turnstileRes = await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify', {
+      method: 'POST',
+      body: formData
+    });
+
+    const turnstileOutcome = await turnstileRes.json();
+    if (!turnstileOutcome.success) {
+      return res.status(403).json({ error: "Turnstile validation failed" });
+    }
+
     const normalizedId = normalizeDuration(durationId);
 
     try {
