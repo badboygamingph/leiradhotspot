@@ -6,6 +6,7 @@ import { Turnstile } from '@marsidev/react-turnstile';
 import { MyPurchasedCodes } from './MyPurchasedCodes';
 import { AnnouncementsView } from './AnnouncementsView';
 import { ArtistPortfolioView } from './ArtistPortfolioView';
+import { IncomeVouchersView } from './IncomeVouchersView';
 import creatorImg from '../../assets/.aistudio/img/leiradg.png';
 
 interface Props {
@@ -49,7 +50,7 @@ export function KioskView({ vouchers = [], available, used, onGetVoucher, onReve
     }
   });
   const [announcementsCount, setAnnouncementsCount] = useState(0);
-
+  const [selectedIncomePeriod, setSelectedIncomePeriod] = useState<'today' | 'week' | 'month' | 'total' | null>(null);
   useEffect(() => {
     const fetchAnnouncementsCount = async () => {
       try {
@@ -327,7 +328,8 @@ export function KioskView({ vouchers = [], available, used, onGetVoucher, onReve
                 whileInView={{ opacity: 1, scale: 1, x: 0 }}
                 viewport={{ amount: 0.4 }}
                 transition={{ duration: 0.4, ease: "easeOut" }}
-                className={`snap-center shrink-0 w-[280px] p-6 rounded-3xl border transition-colors ${cardClass} shadow-md border-l-4 border-l-blue-500 relative overflow-hidden group`}
+                onClick={() => setSelectedIncomePeriod('today')}
+                className={`snap-center shrink-0 w-[280px] p-6 rounded-3xl border transition-colors cursor-pointer hover:border-blue-500/50 active:scale-[0.98] ${cardClass} shadow-md border-l-4 border-l-blue-500 relative overflow-hidden group`}
               >
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
@@ -361,7 +363,8 @@ export function KioskView({ vouchers = [], available, used, onGetVoucher, onReve
                 whileInView={{ opacity: 1, scale: 1, x: 0 }}
                 viewport={{ amount: 0.4 }}
                 transition={{ duration: 0.4, ease: "easeOut" }}
-                className={`snap-center shrink-0 w-[280px] p-6 rounded-3xl border transition-colors ${cardClass} shadow-md border-l-4 border-l-slate-500 relative overflow-hidden group`}
+                onClick={() => setSelectedIncomePeriod('week')}
+                className={`snap-center shrink-0 w-[280px] p-6 rounded-3xl border transition-colors cursor-pointer hover:border-slate-500/50 active:scale-[0.98] ${cardClass} shadow-md border-l-4 border-l-slate-500 relative overflow-hidden group`}
               >
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
@@ -395,7 +398,8 @@ export function KioskView({ vouchers = [], available, used, onGetVoucher, onReve
                 whileInView={{ opacity: 1, scale: 1, x: 0 }}
                 viewport={{ amount: 0.4 }}
                 transition={{ duration: 0.4, ease: "easeOut" }}
-                className={`snap-center shrink-0 w-[280px] p-6 rounded-3xl border transition-colors ${cardClass} shadow-md border-l-4 border-l-emerald-500 relative overflow-hidden group`}
+                onClick={() => setSelectedIncomePeriod('month')}
+                className={`snap-center shrink-0 w-[280px] p-6 rounded-3xl border transition-colors cursor-pointer hover:border-emerald-500/50 active:scale-[0.98] ${cardClass} shadow-md border-l-4 border-l-emerald-500 relative overflow-hidden group`}
               >
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
@@ -429,7 +433,8 @@ export function KioskView({ vouchers = [], available, used, onGetVoucher, onReve
                 whileInView={{ opacity: 1, scale: 1, x: 0 }}
                 viewport={{ amount: 0.4 }}
                 transition={{ duration: 0.4, ease: "easeOut" }}
-                className={`snap-center shrink-0 w-[280px] p-6 rounded-3xl border transition-colors ${cardClass} shadow-md border-l-4 border-l-purple-500 relative overflow-hidden group`}
+                onClick={() => setSelectedIncomePeriod('total')}
+                className={`snap-center shrink-0 w-[280px] p-6 rounded-3xl border transition-colors cursor-pointer hover:border-purple-500/50 active:scale-[0.98] ${cardClass} shadow-md border-l-4 border-l-purple-500 relative overflow-hidden group`}
               >
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
@@ -876,6 +881,14 @@ export function KioskView({ vouchers = [], available, used, onGetVoucher, onReve
           <ArtistPortfolioView
             isDarkMode={isDarkMode}
             onClose={() => setIsArtistPortfolioOpen(false)}
+          />
+        )}
+        {selectedIncomePeriod && (
+          <IncomeVouchersView
+            vouchers={vouchers}
+            period={selectedIncomePeriod}
+            isDarkMode={isDarkMode}
+            onClose={() => setSelectedIncomePeriod(null)}
           />
         )}
 

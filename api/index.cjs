@@ -158,7 +158,7 @@ app.get('/api/settings', async (req, res) => {
       }
       throw error;
     }
-    
+
     res.json({ isMaintenanceMode: data.is_maintenance_mode || false });
   } catch (err) {
     console.error('Settings error:', err);
