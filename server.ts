@@ -690,22 +690,29 @@ app.patch("/api/vouchers/:id/status", async (req, res) => {
       foundLocal.status = dbStatus;
       if (dbStatus === 'redeemed') {
         foundLocal.redeemed_at = new Date().toISOString();
+      } else if (dbStatus === 'available') {
+        foundLocal.redeemed_at = null;
       }
       saveLocalVouchers(local);
     }
 
     try {
       const supabase = getSupabase();
+      const updateData: any = { status: dbStatus };
+      if (dbStatus === 'available') {
+        updateData.redeemed_at = null;
+      }
+      
       const { error } = await supabase
         .from('vouchers')
-        .update({ status: dbStatus })
+        .update(updateData)
         .eq('id', id);
 
       if (error) {
         // If ID is not UUID (like in local file fallback), we can try matching by code
         const { error: codeError } = await supabase
           .from('vouchers')
-          .update({ status: dbStatus })
+          .update(updateData)
           .eq('code', id);
         if (codeError) throw codeError;
       }
