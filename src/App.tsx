@@ -304,6 +304,7 @@ export default function App() {
                 available={stats.available} 
                 used={stats.used} 
                 onGetVoucher={getAndUseVoucher} 
+                onRevertVoucher={async (id) => { await updateVoucherStatus(id, 'available'); }}
                 isDarkMode={isDarkMode}
                 onRefresh={refresh}
                 isRefreshing={loading}
