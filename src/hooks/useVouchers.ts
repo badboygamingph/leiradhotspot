@@ -298,7 +298,7 @@ export function useVouchers() {
       await Promise.all([fetchStats(), fetchVouchers()]);
       
       return {
-        id: Math.random().toString(),
+        id: data.id || Math.random().toString(), // Use real ID from server if available
         code: data.code,
         duration: data.duration,
         price: '',

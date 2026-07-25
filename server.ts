@@ -651,7 +651,7 @@ app.post("/api/vouchers/redeem", async (req, res) => {
           saveLocalVouchers(local);
         }
 
-        return res.json({ code: voucher.code, duration: voucher.duration, source: 'Supabase' });
+        return res.json({ id: voucher.id, code: voucher.code, duration: voucher.duration, source: 'Supabase' });
       }
     } catch (dbError: any) {
       console.warn("Supabase Redemption Fallback Triggered (using local storage):", dbError.message || dbError);
@@ -670,7 +670,7 @@ app.post("/api/vouchers/redeem", async (req, res) => {
     localVoucher.redeemed_at = new Date().toISOString();
     saveLocalVouchers(local);
 
-    res.json({ code: localVoucher.code, duration: localVoucher.duration, source: 'local_fallback' });
+    res.json({ id: localVoucher.id, code: localVoucher.code, duration: localVoucher.duration, source: 'local_fallback' });
   } catch (error: any) {
     console.warn("Redemption Error Fallback Triggered:", error.message || error);
     res.status(500).json({ error: error.message });
