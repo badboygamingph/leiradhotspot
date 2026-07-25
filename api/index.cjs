@@ -300,7 +300,7 @@ app.post('/api/vouchers/redeem', async (req, res) => {
       .eq('id', voucher.id);
     if (updateErr) throw updateErr;
 
-    res.json({ code: voucher.code, duration: voucher.duration });
+    res.json({ id: voucher.id, code: voucher.code, duration: voucher.duration });
   } catch (err) {
     console.error('Redeem error:', err);
     res.status(500).json({ error: err.message || String(err) });
@@ -314,16 +314,21 @@ app.patch('/api/vouchers/:id/status', async (req, res) => {
     const { status } = req.body;
     const dbStatus = status === 'used' ? 'redeemed' : status;
 
+    const updateData = { status: dbStatus };
+    if (dbStatus === 'available') {
+      updateData.redeemed_at = null;
+    }
+
     const supabase = getSupabase();
     let { error } = await supabase
       .from('vouchers')
-      .update({ status: dbStatus })
+      .update(updateData)
       .eq('id', id);
 
     if (error) {
       const { error: codeError } = await supabase
         .from('vouchers')
-        .update({ status: dbStatus })
+        .update(updateData)
         .eq('code', id);
       if (codeError) throw codeError;
     }
