@@ -5,7 +5,6 @@ import { Voucher } from '../types';
 import { Turnstile } from '@marsidev/react-turnstile';
 import { MyPurchasedCodes } from './MyPurchasedCodes';
 import { AnnouncementsView } from './AnnouncementsView';
-import { ArtistPortfolioView } from './ArtistPortfolioView';
 import { IncomeVouchersView } from './IncomeVouchersView';
 import creatorImg from '../../assets/.aistudio/img/leiradg.png';
 
@@ -40,7 +39,6 @@ export function KioskView({ vouchers = [], available, used, onGetVoucher, onReve
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const [isMyCodesOpen, setIsMyCodesOpen] = useState(false);
   const [isAnnouncementsOpen, setIsAnnouncementsOpen] = useState(false);
-  const [isArtistPortfolioOpen, setIsArtistPortfolioOpen] = useState(false);
   const [purchasedCodes, setPurchasedCodes] = useState<Voucher[]>(() => {
     try {
       const stored = localStorage.getItem('myPurchasedCodes');
@@ -589,19 +587,19 @@ export function KioskView({ vouchers = [], available, used, onGetVoucher, onReve
 
             {/* Artist Portfolio Banner Button */}
             <button
-              onClick={() => setIsArtistPortfolioOpen(true)}
+              onClick={() => window.open('https://open.spotify.com/artist/78yrPwOcBEFSnaUPOycNmS?si=0E3Ev8nzQj2a67E4H9XzXg', '_blank', 'noopener,noreferrer')}
               className={`w-full mt-3 py-4 px-6 rounded-2xl transition-all flex items-center justify-between border shadow-sm group overflow-hidden relative ${isDarkMode
-                  ? 'bg-gradient-to-r from-slate-900 to-indigo-950/30 border-indigo-500/20 text-slate-300 hover:border-indigo-500/40'
-                  : 'bg-gradient-to-r from-white to-indigo-50 border-indigo-100 text-slate-700 hover:border-indigo-200 hover:shadow-md'
+                  ? 'bg-gradient-to-r from-slate-900 to-emerald-950/30 border-emerald-500/20 text-slate-300 hover:border-emerald-500/40'
+                  : 'bg-gradient-to-r from-white to-emerald-50 border-emerald-100 text-slate-700 hover:border-emerald-200 hover:shadow-md'
                 }`}
             >
-              <div className={`absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 bg-gradient-to-r ${isDarkMode ? 'from-indigo-500/10 to-transparent' : 'from-indigo-500/5 to-transparent'}`}></div>
+              <div className={`absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 bg-gradient-to-r ${isDarkMode ? 'from-emerald-500/10 to-transparent' : 'from-emerald-500/5 to-transparent'}`}></div>
               <div className="flex items-center gap-4 relative z-10">
-                <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${isDarkMode ? 'bg-indigo-500/20' : 'bg-indigo-100'}`}>
-                  <Music className={`w-5 h-5 ${isDarkMode ? 'text-indigo-400' : 'text-indigo-600'}`} />
+                <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${isDarkMode ? 'bg-emerald-500/20' : 'bg-emerald-100'}`}>
+                  <Music className={`w-5 h-5 ${isDarkMode ? 'text-emerald-400' : 'text-emerald-600'}`} />
                 </div>
                 <div className="text-left">
-                  <p className={`text-[9px] font-black uppercase tracking-widest ${isDarkMode ? 'text-indigo-400' : 'text-indigo-600'}`}>Artist Portfolio</p>
+                  <p className={`text-[9px] font-black uppercase tracking-widest ${isDarkMode ? 'text-emerald-400' : 'text-emerald-600'}`}>Listen on Spotify</p>
                   <p className="text-sm font-bold tracking-tight">Leirad G.</p>
                 </div>
               </div>
@@ -877,12 +875,7 @@ export function KioskView({ vouchers = [], available, used, onGetVoucher, onReve
             onClose={() => setIsAnnouncementsOpen(false)}
           />
         )}
-        {isArtistPortfolioOpen && (
-          <ArtistPortfolioView
-            isDarkMode={isDarkMode}
-            onClose={() => setIsArtistPortfolioOpen(false)}
-          />
-        )}
+
         {selectedIncomePeriod && (
           <IncomeVouchersView
             vouchers={vouchers}
