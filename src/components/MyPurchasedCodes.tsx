@@ -84,24 +84,26 @@ function SwipeableCodeCard({
       className="relative overflow-hidden rounded-[1.5rem] mb-3 touch-pan-y"
     >
       {/* Background Actions */}
-      <div className={`absolute inset-0 flex items-center justify-end px-5 gap-3 ${isDarkMode ? 'bg-red-500/10' : 'bg-red-50'}`}>
-        <button 
-          onClick={() => { setIsSwiped(false); setCurrentX(0); }} 
-          className={`px-4 py-2.5 rounded-xl text-[10px] font-bold uppercase tracking-wider shadow-sm transition-all active:scale-95 border ${isDarkMode ? 'bg-slate-800 text-slate-300 hover:bg-slate-700 border-slate-700' : 'bg-white text-slate-500 hover:bg-slate-50 border-slate-200'}`}
-        >
-          Cancel
-        </button>
-        <button 
-          onClick={() => {
-            onDeleteRequest(code.id);
-            setIsSwiped(false);
-            setCurrentX(0);
-          }}
-          className="px-4 py-2.5 rounded-xl text-[10px] font-bold uppercase tracking-wider bg-red-600 hover:bg-red-500 text-white flex items-center gap-1.5 shadow-sm transition-all active:scale-95"
-        >
-          <Trash2 className="w-4 h-4" />
-          Delete
-        </button>
+      <div className={`absolute inset-0 flex items-center justify-end px-4 ${isDarkMode ? 'bg-red-500/10' : 'bg-red-50'}`}>
+        <div className="w-[110px] flex flex-col gap-2">
+          <button 
+            onClick={() => {
+              onDeleteRequest(code.id);
+              setIsSwiped(false);
+              setCurrentX(0);
+            }}
+            className="w-full py-2.5 rounded-xl text-[10px] font-bold uppercase tracking-wider bg-red-600 hover:bg-red-500 text-white flex items-center justify-center gap-1.5 shadow-sm transition-all active:scale-95"
+          >
+            <Trash2 className="w-3.5 h-3.5" />
+            Delete
+          </button>
+          <button 
+            onClick={() => { setIsSwiped(false); setCurrentX(0); }} 
+            className={`w-full py-2.5 rounded-xl text-[10px] font-bold uppercase tracking-wider shadow-sm transition-all active:scale-95 border ${isDarkMode ? 'bg-slate-800 text-slate-300 hover:bg-slate-700 border-slate-700' : 'bg-white text-slate-500 hover:bg-slate-50 border-slate-200'}`}
+          >
+            Cancel
+          </button>
+        </div>
       </div>
 
       {/* Foreground Card */}
