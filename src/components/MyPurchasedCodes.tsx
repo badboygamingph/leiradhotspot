@@ -2,6 +2,8 @@ import React, { useMemo, useState } from 'react';
 import { Ticket, ChevronLeft, Search, X, Clock, Calendar, CalendarDays, CalendarRange, Trash2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Voucher } from '../types';
+import { ConfirmationModal } from './ConfirmationModal';
+import { useToast } from './Toast';
 
 interface MyPurchasedCodesProps {
   purchasedCodes: Voucher[];
@@ -34,10 +36,10 @@ function matchesTime(code: Voucher, filter: TimeFilter): boolean {
 }
 
 function SwipeableCodeCard({ 
-  code, idx, isDarkMode, searchTerm, copiedCode, handleCopyCode, onRemove 
+  code, idx, isDarkMode, searchTerm, copiedCode, handleCopyCode, onDeleteRequest 
 }: { 
   code: Voucher; idx: number; isDarkMode: boolean; searchTerm: string; 
-  copiedCode: string | null; handleCopyCode: (code: string) => void; onRemove: (id: string) => void;
+  copiedCode: string | null; handleCopyCode: (code: string) => void; onDeleteRequest: (id: string) => void;
 }) {
   const [startX, setStartX] = useState(0);
   const [isSwiped, setIsSwiped] = useState(false);
@@ -58,16 +60,16 @@ function SwipeableCodeCard({
   const handleTouchMove = (e: React.TouchEvent) => {
     const diff = e.touches[0].clientX - startX;
     if (!isSwiped && diff < 0) {
-       setCurrentX(Math.max(diff, -140));
+       setCurrentX(Math.max(diff, -150));
     } else if (isSwiped && diff > 0) {
-       setCurrentX(Math.min(-140 + diff, 0));
+       setCurrentX(Math.min(-150 + diff, 0));
     }
   };
   
   const handleTouchEnd = () => {
-    if (currentX < -70) {
+    if (currentX < -75) {
       setIsSwiped(true);
-      setCurrentX(-140);
+      setCurrentX(-150);
     } else {
       setIsSwiped(false);
       setCurrentX(0);
@@ -82,18 +84,22 @@ function SwipeableCodeCard({
       className="relative overflow-hidden rounded-[1.5rem] mb-3 touch-pan-y"
     >
       {/* Background Actions */}
-      <div className={`absolute inset-0 flex items-center justify-end px-4 gap-2 ${isDarkMode ? 'bg-red-900/20' : 'bg-red-50'}`}>
+      <div className={`absolute inset-0 flex items-center justify-end px-5 gap-3 ${isDarkMode ? 'bg-red-500/10' : 'bg-red-50'}`}>
         <button 
           onClick={() => { setIsSwiped(false); setCurrentX(0); }} 
-          className={`px-3 py-2 rounded-xl text-[10px] font-bold uppercase tracking-wider shadow-sm transition-all active:scale-95 ${isDarkMode ? 'bg-slate-800 text-slate-300' : 'bg-white text-slate-500'}`}
+          className={`px-4 py-2.5 rounded-xl text-[10px] font-bold uppercase tracking-wider shadow-sm transition-all active:scale-95 border ${isDarkMode ? 'bg-slate-800 text-slate-300 hover:bg-slate-700 border-slate-700' : 'bg-white text-slate-500 hover:bg-slate-50 border-slate-200'}`}
         >
           Cancel
         </button>
         <button 
-          onClick={() => onRemove(code.id)}
-          className="px-3 py-2 rounded-xl text-[10px] font-bold uppercase tracking-wider bg-red-500 text-white flex items-center gap-1 shadow-sm transition-all active:scale-95"
+          onClick={() => {
+            onDeleteRequest(code.id);
+            setIsSwiped(false);
+            setCurrentX(0);
+          }}
+          className="px-4 py-2.5 rounded-xl text-[10px] font-bold uppercase tracking-wider bg-red-600 hover:bg-red-500 text-white flex items-center gap-1.5 shadow-sm transition-all active:scale-95"
         >
-          <Trash2 className="w-3.5 h-3.5" />
+          <Trash2 className="w-4 h-4" />
           Delete
         </button>
       </div>
@@ -103,7 +109,7 @@ function SwipeableCodeCard({
         onTouchStart={handleTouchStart}
         onTouchMove={handleTouchMove}
         onTouchEnd={handleTouchEnd}
-        style={{ transform: `translateX(${currentX}px)`, transition: currentX === 0 || currentX === -140 ? 'transform 0.2s ease-out' : 'none' }}
+        style={{ transform: `translateX(${currentX}px)`, transition: currentX === 0 || currentX === -150 ? 'transform 0.2s ease-out' : 'none' }}
         className={`relative w-full rounded-[1.5rem] border transition-colors hover:shadow-lg ${cardBg} hover:border-blue-500/30 touch-pan-y`}
       >
         <div className="absolute left-0 top-0 bottom-0 w-1.5 bg-blue-500" />
@@ -147,6 +153,8 @@ export function MyPurchasedCodes({ purchasedCodes, isDarkMode, onClose, onClearA
   const [copiedCode, setCopiedCode] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [timeFilter, setTimeFilter] = useState<TimeFilter>('all');
+  const [deleteModal, setDeleteModal] = useState<{ isOpen: boolean; type: 'single' | 'all'; codeId?: string }>({ isOpen: false, type: 'single' });
+  const { addToast } = useToast();
 
   const textMuted = isDarkMode ? 'text-slate-400' : 'text-slate-500';
   const cardBg = isDarkMode ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200';
@@ -203,11 +211,7 @@ export function MyPurchasedCodes({ purchasedCodes, isDarkMode, onClose, onClearA
           </div>
           {purchasedCodes.length > 0 && (
             <button
-              onClick={() => {
-                if(window.confirm('Are you sure you want to clear all your purchased codes from this device?')) {
-                  onClearAll();
-                }
-              }}
+              onClick={() => setDeleteModal({ isOpen: true, type: 'all' })}
               className={`shrink-0 flex flex-col items-center justify-center p-2 rounded-xl text-red-500 transition-colors ${isDarkMode ? 'hover:bg-red-500/20' : 'hover:bg-red-50'}`}
             >
               <Trash2 className="w-4 h-4 mb-0.5" />
@@ -334,13 +338,33 @@ export function MyPurchasedCodes({ purchasedCodes, isDarkMode, onClose, onClearA
                   searchTerm={searchTerm}
                   copiedCode={copiedCode}
                   handleCopyCode={handleCopyCode}
-                  onRemove={onRemoveCode}
+                  onDeleteRequest={(id) => setDeleteModal({ isOpen: true, type: 'single', codeId: id })}
                 />
               ))}
             </motion.div>
           )}
         </AnimatePresence>
       </div>
+
+      <ConfirmationModal
+        isOpen={deleteModal.isOpen}
+        onClose={() => setDeleteModal({ ...deleteModal, isOpen: false })}
+        title={deleteModal.type === 'all' ? 'Clear All Codes' : 'Delete Code'}
+        message={deleteModal.type === 'all' 
+          ? 'Are you sure you want to permanently clear all your stored codes from this device? This cannot be undone.'
+          : 'Are you sure you want to delete this purchased code from this device?'}
+        confirmLabel={deleteModal.type === 'all' ? 'Clear All' : 'Delete'}
+        isDestructive={true}
+        onConfirm={() => {
+          if (deleteModal.type === 'all') {
+            onClearAll();
+            addToast("All purchased codes have been cleared.", "success");
+          } else if (deleteModal.type === 'single' && deleteModal.codeId) {
+            onRemoveCode(deleteModal.codeId);
+            addToast("Voucher code deleted successfully.", "success");
+          }
+        }}
+      />
     </motion.div>
   );
 }
