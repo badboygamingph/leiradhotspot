@@ -6,6 +6,7 @@ import { Turnstile } from '@marsidev/react-turnstile';
 import { MyPurchasedCodes } from './MyPurchasedCodes';
 import { AnnouncementsView } from './AnnouncementsView';
 import { IncomeVouchersView } from './IncomeVouchersView';
+import { SpotifyPreviewView } from './SpotifyPreviewView';
 import creatorImg from '../../assets/.aistudio/img/leiradg.png';
 
 interface Props {
@@ -39,6 +40,7 @@ export function KioskView({ vouchers = [], available, used, onGetVoucher, onReve
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const [isMyCodesOpen, setIsMyCodesOpen] = useState(false);
   const [isAnnouncementsOpen, setIsAnnouncementsOpen] = useState(false);
+  const [isSpotifyPreviewOpen, setIsSpotifyPreviewOpen] = useState(false);
   const [purchasedCodes, setPurchasedCodes] = useState<Voucher[]>(() => {
     try {
       const stored = localStorage.getItem('myPurchasedCodes');
@@ -587,7 +589,7 @@ export function KioskView({ vouchers = [], available, used, onGetVoucher, onReve
 
             {/* Artist Portfolio Banner Button */}
             <button
-              onClick={() => window.open('https://open.spotify.com/artist/78yrPwOcBEFSnaUPOycNmS?si=0E3Ev8nzQj2a67E4H9XzXg', '_blank', 'noopener,noreferrer')}
+              onClick={() => setIsSpotifyPreviewOpen(true)}
               className={`w-full mt-3 py-4 px-6 rounded-2xl transition-all flex items-center justify-between border shadow-sm group overflow-hidden relative ${isDarkMode
                   ? 'bg-gradient-to-r from-slate-900 to-emerald-950/30 border-emerald-500/20 text-slate-300 hover:border-emerald-500/40'
                   : 'bg-gradient-to-r from-white to-emerald-50 border-emerald-100 text-slate-700 hover:border-emerald-200 hover:shadow-md'
@@ -873,6 +875,13 @@ export function KioskView({ vouchers = [], available, used, onGetVoucher, onReve
           <AnnouncementsView
             isDarkMode={isDarkMode}
             onClose={() => setIsAnnouncementsOpen(false)}
+          />
+        )}
+
+        {isSpotifyPreviewOpen && (
+          <SpotifyPreviewView
+            isDarkMode={isDarkMode}
+            onClose={() => setIsSpotifyPreviewOpen(false)}
           />
         )}
 

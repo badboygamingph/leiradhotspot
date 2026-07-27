@@ -2,12 +2,12 @@ import React, { useEffect, useState } from 'react';
 import { ChevronLeft, ExternalLink, Music } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 
-interface ArtistPortfolioViewProps {
+interface SpotifyPreviewViewProps {
   isDarkMode: boolean;
   onClose: () => void;
 }
 
-export function ArtistPortfolioView({ isDarkMode, onClose }: ArtistPortfolioViewProps) {
+export function SpotifyPreviewView({ isDarkMode, onClose }: SpotifyPreviewViewProps) {
   const textMuted = isDarkMode ? 'text-slate-400' : 'text-slate-500';
   const [isLoading, setIsLoading] = useState(true);
 
@@ -42,65 +42,57 @@ export function ArtistPortfolioView({ isDarkMode, onClose }: ArtistPortfolioView
           </button>
           <div className="flex-1 min-w-0">
             <h3 className="font-bold font-display tracking-tight text-xl truncate flex items-center gap-2">
-              <Music className="w-5 h-5 text-indigo-500" />
-              Artist Portfolio
+              <Music className="w-5 h-5 text-emerald-500" />
+              Listen on Spotify
             </h3>
             <p className={`text-[10px] font-black uppercase tracking-[0.2em] mt-0.5 ${textMuted}`}>
               Leirad G.
             </p>
           </div>
           <a
-            href="https://leirad-artist.vercel.app/"
+            href="https://open.spotify.com/artist/78yrPwOcBEFSnaUPOycNmS?si=0E3Ev8nzQj2a67E4H9XzXg"
             target="_blank"
             rel="noopener noreferrer"
-            className={`p-2 rounded-xl transition-all active:scale-95 flex items-center gap-2 ${isDarkMode ? 'text-slate-400 hover:bg-slate-800 hover:text-indigo-400' : 'text-slate-500 hover:bg-slate-100 hover:text-indigo-600'}`}
+            className={`p-2 rounded-xl transition-all active:scale-95 flex items-center gap-2 ${isDarkMode ? 'text-slate-400 hover:bg-slate-800 hover:text-emerald-400' : 'text-slate-500 hover:bg-slate-100 hover:text-emerald-600'}`}
           >
-            <span className="text-[10px] font-bold uppercase hidden sm:block">Open Full</span>
+            <span className="text-[10px] font-bold uppercase hidden sm:block">Open App</span>
             <ExternalLink className="w-4 h-4" />
           </a>
         </div>
       </div>
 
       {/* Content */}
-      <div className={`flex-1 w-full relative ${isDarkMode ? 'bg-black' : 'bg-white'}`}>
+      <div className={`flex-1 w-full relative ${isDarkMode ? 'bg-[#121212]' : 'bg-white'} p-4 flex justify-center`}>
         <AnimatePresence>
           {isLoading && (
             <motion.div 
               initial={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.5 }}
-              className={`absolute inset-0 z-20 p-6 flex flex-col items-center justify-center space-y-8 ${isDarkMode ? 'bg-[#0a0a0a]' : 'bg-white'}`}
+              className={`absolute inset-0 z-20 p-6 flex flex-col items-center space-y-8 ${isDarkMode ? 'bg-[#121212]' : 'bg-white'}`}
             >
-              <div className="w-full max-w-sm space-y-8 flex flex-col items-center animate-pulse">
-                {/* Header Text Skeleton */}
-                <div className="space-y-3 w-full flex flex-col items-center">
-                  <div className={`h-8 w-2/3 rounded-lg ${isDarkMode ? 'bg-slate-800' : 'bg-slate-200'}`}></div>
-                  <div className={`h-10 w-full rounded-xl ${isDarkMode ? 'bg-slate-800' : 'bg-slate-200'}`}></div>
-                </div>
-                
-                {/* Avatar Skeleton */}
-                <div className={`w-40 h-40 rounded-full mt-4 border-4 ${isDarkMode ? 'bg-slate-800 border-slate-900' : 'bg-slate-200 border-slate-100'}`}></div>
-                
-                {/* Description Text Skeleton */}
-                <div className="w-full space-y-3 mt-8">
-                  <div className={`h-4 w-full rounded ${isDarkMode ? 'bg-slate-800' : 'bg-slate-200'}`}></div>
-                  <div className={`h-4 w-5/6 mx-auto rounded ${isDarkMode ? 'bg-slate-800' : 'bg-slate-200'}`}></div>
-                </div>
-                
-                {/* Button Skeleton */}
-                <div className={`mt-10 w-full h-14 rounded-2xl ${isDarkMode ? 'bg-slate-800' : 'bg-slate-200'}`}></div>
+              <div className="w-full max-w-sm space-y-8 flex flex-col items-center animate-pulse pt-10">
+                <div className={`h-[352px] w-full rounded-2xl ${isDarkMode ? 'bg-slate-800' : 'bg-slate-200'}`}></div>
               </div>
             </motion.div>
           )}
         </AnimatePresence>
 
-        <iframe 
-          src="https://leirad-artist.vercel.app/"
-          className={`w-full h-full border-none relative z-10 transition-opacity duration-500 ${isLoading ? 'opacity-0' : 'opacity-100'}`}
-          sandbox="allow-scripts allow-same-origin allow-popups allow-forms"
-          title="Leirad Artist Portfolio"
-          onLoad={() => setIsLoading(false)}
-        />
+        <div className="w-full max-w-2xl h-full">
+          <iframe 
+            style={{ borderRadius: '12px' }}
+            src={`https://open.spotify.com/embed/artist/78yrPwOcBEFSnaUPOycNmS?utm_source=generator${isDarkMode ? '&theme=0' : ''}`}
+            width="100%"
+            height="100%"
+            frameBorder="0"
+            allowFullScreen
+            allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+            loading="lazy"
+            className={`relative z-10 transition-opacity duration-500 ${isLoading ? 'opacity-0' : 'opacity-100'}`}
+            title="Spotify Preview"
+            onLoad={() => setIsLoading(false)}
+          />
+        </div>
       </div>
     </motion.div>
   );
