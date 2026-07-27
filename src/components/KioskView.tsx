@@ -49,6 +49,17 @@ export function KioskView({ vouchers = [], available, used, onGetVoucher, onReve
       return [];
     }
   });
+
+  const clearPurchasedCodes = () => {
+    setPurchasedCodes([]);
+    try { localStorage.removeItem('myPurchasedCodes'); } catch (e) {}
+  };
+
+  const removePurchasedCode = (idToRemove: string) => {
+    const newCodes = purchasedCodes.filter(c => c.id !== idToRemove);
+    setPurchasedCodes(newCodes);
+    try { localStorage.setItem('myPurchasedCodes', JSON.stringify(newCodes)); } catch (e) {}
+  };
   const [announcementsCount, setAnnouncementsCount] = useState(0);
   const [selectedIncomePeriod, setSelectedIncomePeriod] = useState<'today' | 'week' | 'month' | 'total' | null>(null);
   useEffect(() => {
@@ -869,6 +880,8 @@ export function KioskView({ vouchers = [], available, used, onGetVoucher, onReve
             purchasedCodes={purchasedCodes}
             isDarkMode={isDarkMode}
             onClose={() => setIsMyCodesOpen(false)}
+            onClearAll={clearPurchasedCodes}
+            onRemoveCode={removePurchasedCode}
           />
         )}
         {isAnnouncementsOpen && (

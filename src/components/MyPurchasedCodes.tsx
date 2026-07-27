@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { Ticket, ChevronLeft, Search, X, Clock, Calendar, CalendarDays, CalendarRange } from 'lucide-react';
+import { Ticket, ChevronLeft, Search, X, Clock, Calendar, CalendarDays, CalendarRange, Trash2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Voucher } from '../types';
 
@@ -7,6 +7,8 @@ interface MyPurchasedCodesProps {
   purchasedCodes: Voucher[];
   isDarkMode: boolean;
   onClose: () => void;
+  onClearAll: () => void;
+  onRemoveCode: (id: string) => void;
 }
 
 type TimeFilter = 'all' | 'today' | 'week' | 'month';
@@ -31,7 +33,117 @@ function matchesTime(code: Voucher, filter: TimeFilter): boolean {
   return true;
 }
 
-export function MyPurchasedCodes({ purchasedCodes, isDarkMode, onClose }: MyPurchasedCodesProps) {
+function SwipeableCodeCard({ 
+  code, idx, isDarkMode, searchTerm, copiedCode, handleCopyCode, onRemove 
+}: { 
+  code: Voucher; idx: number; isDarkMode: boolean; searchTerm: string; 
+  copiedCode: string | null; handleCopyCode: (code: string) => void; onRemove: (id: string) => void;
+}) {
+  const [startX, setStartX] = useState(0);
+  const [isSwiped, setIsSwiped] = useState(false);
+  const [currentX, setCurrentX] = useState(0);
+
+  const cardBg = isDarkMode ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200';
+  const textMuted = isDarkMode ? 'text-slate-400' : 'text-slate-500';
+
+  const ts = (code as any).purchasedAt || code.createdAt;
+  const dateLabel = ts ? new Date(ts).toLocaleString(undefined, {
+    month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit'
+  }) : '—';
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    setStartX(e.touches[0].clientX);
+  };
+  
+  const handleTouchMove = (e: React.TouchEvent) => {
+    const diff = e.touches[0].clientX - startX;
+    if (!isSwiped && diff < 0) {
+       setCurrentX(Math.max(diff, -140));
+    } else if (isSwiped && diff > 0) {
+       setCurrentX(Math.min(-140 + diff, 0));
+    }
+  };
+  
+  const handleTouchEnd = () => {
+    if (currentX < -70) {
+      setIsSwiped(true);
+      setCurrentX(-140);
+    } else {
+      setIsSwiped(false);
+      setCurrentX(0);
+    }
+  };
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 12 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: Math.min(idx * 0.04, 0.3), ease: "easeOut" }}
+      className="relative overflow-hidden rounded-[1.5rem] mb-3 touch-pan-y"
+    >
+      {/* Background Actions */}
+      <div className={`absolute inset-0 flex items-center justify-end px-4 gap-2 ${isDarkMode ? 'bg-red-900/20' : 'bg-red-50'}`}>
+        <button 
+          onClick={() => { setIsSwiped(false); setCurrentX(0); }} 
+          className={`px-3 py-2 rounded-xl text-[10px] font-bold uppercase tracking-wider shadow-sm transition-all active:scale-95 ${isDarkMode ? 'bg-slate-800 text-slate-300' : 'bg-white text-slate-500'}`}
+        >
+          Cancel
+        </button>
+        <button 
+          onClick={() => onRemove(code.id)}
+          className="px-3 py-2 rounded-xl text-[10px] font-bold uppercase tracking-wider bg-red-500 text-white flex items-center gap-1 shadow-sm transition-all active:scale-95"
+        >
+          <Trash2 className="w-3.5 h-3.5" />
+          Delete
+        </button>
+      </div>
+
+      {/* Foreground Card */}
+      <div 
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}
+        style={{ transform: `translateX(${currentX}px)`, transition: currentX === 0 || currentX === -140 ? 'transform 0.2s ease-out' : 'none' }}
+        className={`relative w-full rounded-[1.5rem] border transition-colors hover:shadow-lg ${cardBg} hover:border-blue-500/30 touch-pan-y`}
+      >
+        <div className="absolute left-0 top-0 bottom-0 w-1.5 bg-blue-500" />
+        <div className="p-5 pl-7">
+          <div className="flex items-center justify-between mb-3">
+            <span className={`text-[10px] font-black uppercase tracking-[0.2em] px-2.5 py-1 rounded-md ${isDarkMode ? 'bg-blue-500/20 text-blue-400 border border-blue-500/20' : 'bg-blue-50 text-blue-700 border border-blue-100'}`}>
+              {code.duration}
+            </span>
+            <span className={`text-[10px] font-bold uppercase tracking-widest ${textMuted}`}>
+              {dateLabel}
+            </span>
+          </div>
+
+          <div className={`px-4 py-3.5 rounded-2xl flex flex-col sm:flex-row items-center justify-between border-2 border-dashed gap-3 ${isDarkMode ? 'border-slate-800 bg-slate-950/80' : 'border-slate-200 bg-slate-50'}`}>
+            <span className={`text-2xl font-black font-mono tracking-[0.15em] select-all ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>
+              {searchTerm ? (
+                code.code.split(new RegExp(`(${searchTerm})`, 'gi')).map((part, i) =>
+                  part.toLowerCase() === searchTerm.toLowerCase()
+                    ? <mark key={i} className="bg-yellow-300 text-slate-900 rounded px-0.5">{part}</mark>
+                    : <span key={i}>{part}</span>
+                )
+              ) : code.code}
+            </span>
+            <button
+              onClick={() => handleCopyCode(code.code)}
+              className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 hover:bg-emerald-500/20 transition-all active:scale-95"
+            >
+              <span className="text-[9px] font-black uppercase tracking-[0.2em] text-emerald-600 dark:text-emerald-400">
+                {copiedCode === code.code ? '✓ Copied!' : 'Copy Code'}
+              </span>
+              {copiedCode !== code.code && <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />}
+            </button>
+          </div>
+        </div>
+      </div>
+    </motion.div>
+  );
+}
+
+export function MyPurchasedCodes({ purchasedCodes, isDarkMode, onClose, onClearAll, onRemoveCode }: MyPurchasedCodesProps) {
   const [copiedCode, setCopiedCode] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [timeFilter, setTimeFilter] = useState<TimeFilter>('all');
@@ -89,6 +201,19 @@ export function MyPurchasedCodes({ purchasedCodes, isDarkMode, onClose }: MyPurc
               </p>
             </div>
           </div>
+          {purchasedCodes.length > 0 && (
+            <button
+              onClick={() => {
+                if(window.confirm('Are you sure you want to clear all your purchased codes from this device?')) {
+                  onClearAll();
+                }
+              }}
+              className={`shrink-0 flex flex-col items-center justify-center p-2 rounded-xl text-red-500 transition-colors ${isDarkMode ? 'hover:bg-red-500/20' : 'hover:bg-red-50'}`}
+            >
+              <Trash2 className="w-4 h-4 mb-0.5" />
+              <span className="text-[8px] font-bold uppercase tracking-wider">Clear All</span>
+            </button>
+          )}
         </div>
 
         {/* Search bar */}
@@ -200,61 +325,18 @@ export function MyPurchasedCodes({ purchasedCodes, isDarkMode, onClose }: MyPurc
                 {timeFilter !== 'all' || searchTerm ? '(filtered)' : ''}
               </p>
 
-              {filtered.map((code, idx) => {
-                const ts = (code as any).purchasedAt || code.createdAt;
-                const dateLabel = ts
-                  ? new Date(ts).toLocaleString(undefined, {
-                      month: 'short', day: 'numeric',
-                      hour: '2-digit', minute: '2-digit'
-                    })
-                  : '—';
-
-                return (
-                  <motion.div
-                    initial={{ opacity: 0, y: 12 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: Math.min(idx * 0.04, 0.3), ease: "easeOut" }}
-                    key={`${code.code}-${idx}`}
-                    className={`relative overflow-hidden rounded-[1.5rem] border transition-all hover:shadow-lg ${cardBg} hover:border-blue-500/30`}
-                  >
-                    {/* Blue accent strip */}
-                    <div className="absolute left-0 top-0 bottom-0 w-1.5 bg-blue-500" />
-
-                    <div className="p-5 pl-7">
-                      <div className="flex items-center justify-between mb-3">
-                        <span className={`text-[10px] font-black uppercase tracking-[0.2em] px-2.5 py-1 rounded-md ${isDarkMode ? 'bg-blue-500/20 text-blue-400 border border-blue-500/20' : 'bg-blue-50 text-blue-700 border border-blue-100'}`}>
-                          {code.duration}
-                        </span>
-                        <span className={`text-[10px] font-bold uppercase tracking-widest ${textMuted}`}>
-                          {dateLabel}
-                        </span>
-                      </div>
-
-                      <div className={`px-4 py-3.5 rounded-2xl flex flex-col sm:flex-row items-center justify-between border-2 border-dashed gap-3 ${isDarkMode ? 'border-slate-800 bg-slate-950/80' : 'border-slate-200 bg-slate-50'}`}>
-                        {/* Highlight search term in code */}
-                        <span className={`text-2xl font-black font-mono tracking-[0.15em] select-all ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>
-                          {searchTerm ? (
-                            code.code.split(new RegExp(`(${searchTerm})`, 'gi')).map((part, i) =>
-                              part.toLowerCase() === searchTerm.toLowerCase()
-                                ? <mark key={i} className="bg-yellow-300 text-slate-900 rounded px-0.5">{part}</mark>
-                                : <span key={i}>{part}</span>
-                            )
-                          ) : code.code}
-                        </span>
-                        <button
-                          onClick={() => handleCopyCode(code.code)}
-                          className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 hover:bg-emerald-500/20 transition-all active:scale-95"
-                        >
-                          <span className="text-[9px] font-black uppercase tracking-[0.2em] text-emerald-600 dark:text-emerald-400">
-                            {copiedCode === code.code ? '✓ Copied!' : 'Copy Code'}
-                          </span>
-                          {copiedCode !== code.code && <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />}
-                        </button>
-                      </div>
-                    </div>
-                  </motion.div>
-                );
-              })}
+              {filtered.map((code, idx) => (
+                <SwipeableCodeCard
+                  key={`${code.id || code.code}-${idx}`}
+                  code={code}
+                  idx={idx}
+                  isDarkMode={isDarkMode}
+                  searchTerm={searchTerm}
+                  copiedCode={copiedCode}
+                  handleCopyCode={handleCopyCode}
+                  onRemove={onRemoveCode}
+                />
+              ))}
             </motion.div>
           )}
         </AnimatePresence>
